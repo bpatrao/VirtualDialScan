@@ -9,13 +9,23 @@
 
     <script type="text/javascript">
 
+	function getJsonFromUrl() {
+	  var query = location.search.substr(1);
+	  var result = {};
+	  query.split("&").forEach(function(part) {
+		var item = part.split("=");
+		result[item[0]] = decodeURIComponent(item[1]);
+	  });
+	  return result;
+	}
+
     window.onload = function() {
 	
 		var game = new Phaser.Game(1200, 900, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 		
 		function preload() {
 
-			game.load.image('arrow', 'arrow.png');
+			game.load.image('arrow', 'http://www.w3school.com.cn/i/ct_html5_canvas_image.gif'); //'arrow.png');
 
 			//	Load our physics data exported from PhysicsEditor
 			game.load.physics('physicsData', 'assets/physics/sprites.json');
@@ -24,13 +34,19 @@
 
 		var contra;
 		var start = false;
-
+		var speed = 5;
+		var urlData = getJsonFromUrl();
+		if(urlData["speed"] != undefined)
+		{
+			speed = urlData["speed"];
+		}
+		
 		function create() {
 
 			//	Enable p2 physics
 			game.physics.startSystem(Phaser.Physics.P2JS);
 
-			contra = game.add.sprite(600, 450, 'arrow');
+			contra = game.add.sprite(game.world.centerX,game.world.centerY, 'arrow');
 
 			//	Enable the physics body on this sprite and turn on the visual debugger
 			game.physics.p2.enable(contra, true);
@@ -48,7 +64,7 @@
 
 			//if (start)
 			{
-				contra.body.rotateRight(5);
+				contra.body.rotateRight(speed);
 			}
 
 		}
