@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>hello phaser!</title>
+        <script src="//cdn.jsdelivr.net/phaser/2.5.0/phaser.min.js"></script>
+    </head>
+    <body>
+
+    <script type="text/javascript">
+
+    window.onload = function() {
+	
+		var game = new Phaser.Game(1200, 900, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+		
+		function preload() {
+
+			game.load.image('arrow', 'arrow.png');
+
+			//	Load our physics data exported from PhysicsEditor
+			game.load.physics('physicsData', 'assets/physics/sprites.json');
+
+		}
+
+		var contra;
+		var start = false;
+
+		function create() {
+
+			//	Enable p2 physics
+			game.physics.startSystem(Phaser.Physics.P2JS);
+
+			contra = game.add.sprite(600, 450, 'arrow');
+
+			//	Enable the physics body on this sprite and turn on the visual debugger
+			game.physics.p2.enable(contra, true);
+
+			//	Clear the shapes and load the 'arrow' polygon from the physicsData JSON file in the cache
+			contra.body.clearShapes();
+			contra.body.loadPolygon('physicsData', 'arrow');
+
+			//	Just starts it rotating
+			//game.input.onDown.add(function() { start = !start; }, this);
+
+		}
+
+		function update() {
+
+			//if (start)
+			{
+				contra.body.rotateRight(5);
+			}
+
+		}
+
+		function render() {
+
+		}
+    };
+
+    </script>
+
+    </body>
+</html>
