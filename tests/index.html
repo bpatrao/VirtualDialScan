@@ -5,7 +5,7 @@
         <title>hello phaser!</title>
         <script src="//cdn.jsdelivr.net/phaser/2.5.0/phaser.min.js"></script>
     </head>
-    <body>
+    <body style="padding:0px; margin:0px;">
 
     <script type="text/javascript">
 
@@ -20,8 +20,13 @@
 	}
 
     window.onload = function() {
-	
-		var game = new Phaser.Game('99', '99', Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+
+		var toolbarSz = 50;
+		var gameWidth = window.innerWidth-1;
+		var gameHeight = window.innerHeight-1-toolbarSz;
+
+		
+		var game = new Phaser.Game(gameWidth, gameHeight+toolbarSz, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 		
 		function preload() {
 
@@ -32,11 +37,15 @@
 			game.load.image('buttonSearch','set1/file_search.png');
 		}
 
+
 		var contra;
-		var start = false;
-		var speed = 5;
+		var padd = 20;
+		var finalImageWidth = Math.min(gameWidth/3, gameHeight/3) - padd*2;
+		var move = true;
+		var speed = 6;
 		var urlData = getJsonFromUrl();
 		var buttonTopL, buttonTopM, buttonTopR, buttonMiddleL, buttonMiddleR, buttonBottomL, buttonBottomM, buttonBottomR;
+		var floor;
 		
 		if(urlData["speed"] != undefined)
 		{
@@ -48,45 +57,72 @@
 			//	Enable p2 physics
 			game.physics.startSystem(Phaser.Physics.P2JS);
 			
-			var posTLx = (game.width - (game.width/3*2))/2 - (game.cache.getImage('buttonMinus').width/2);
-			var posTLy = (game.height - (game.height/3*2))/2 - (game.cache.getImage('buttonMinus').height/2);
+			key1 = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+			key1.onDown.add(onClick, this);
 			
+			key2 = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+			key2.onDown.add(onClick, this);
+			game.input.onTap.add(onClick, this);
+			floor = new Phaser.Rectangle(0, gameHeight, gameWidth, gameHeight+toolbarSz);
 
-			buttonTopL = game.add.button(posTLx, posTLy, 'buttonPlus', null, this, 0, 0, 0);
-			buttonTopM = game.add.button(game.width/3 + posTLx, posTLy, 'buttonMinus', null, this, 0, 0, 0);
-			buttonTopR = game.add.button(game.width/3*2 + posTLx, posTLy, 'buttonPlus', null, this, 0, 0, 0);
+			var posTLx = (gameWidth/3)/2  - (gameWidth/4)/2;
+			var posTLy = (gameHeight/3)/2 - (gameHeight/4)/2;
 			
-			buttonMiddleL = game.add.button(posTLx, game.height/3 + posTLy, 'buttonAdd', null, this, 0, 0, 0);
-			buttonMiddleR = game.add.button(game.width/3*2 + posTLx, game.height/3 + posTLy, 'buttonSearch', null, this, 0, 0, 0);
+			buttonTopL = game.add.button(padd, padd, 'buttonPlus', null, this, 0, 0, 0);
+			buttonTopM = game.add.button(gameWidth/2 - finalImageWidth/2, padd, 'buttonMinus', null, this, 0, 0, 0);
+			buttonTopR = game.add.button(gameWidth - finalImageWidth - padd, padd, 'buttonPlus', null, this, 0, 0, 0);
+						
+			buttonMiddleL = game.add.button(padd, gameHeight/2 - finalImageWidth/2, 'buttonAdd', null, this, 0, 0, 0);
+			buttonMiddleR = game.add.button(gameWidth - finalImageWidth - padd, gameHeight/2 - finalImageWidth/2, 'buttonSearch', null, this, 0, 0, 0);
 			
-			buttonBottomL = game.add.button(posTLx, game.height/3*2 + posTLy, 'buttonMinus', null, this, 0, 0, 0);
-			buttonBottomM = game.add.button(game.width/3 + posTLx, game.height/3*2 + posTLy, 'buttonPlus', null, this, 0, 0, 0);
-			buttonBottomR = game.add.button(game.width/3*2 + posTLx, game.height/3*2 + posTLy, 'buttonMinus', null, this, 0, 0, 0);
+			buttonBottomL = game.add.button(padd, gameHeight - finalImageWidth - padd, 'buttonMinus', null, this, 0, 0, 0);
+			buttonBottomM = game.add.button(gameWidth/2 - finalImageWidth/2, gameHeight - finalImageWidth - padd, 'buttonPlus', null, this, 0, 0, 0);
+			buttonBottomR = game.add.button(gameWidth - finalImageWidth - padd, gameHeight - finalImageWidth - padd, 'buttonMinus', null, this, 0, 0, 0);
 			
+			ResizeButton(buttonTopL, finalImageWidth);
+			ResizeButton(buttonTopM, finalImageWidth);
+			ResizeButton(buttonTopR, finalImageWidth);
 			
-			contra = game.add.sprite(game.world.centerX,game.world.centerY, 'arrow');
-
-			//	Enable the physics body on this sprite and turn on the visual debugger
+			ResizeButton(buttonMiddleL, finalImageWidth);
+			ResizeButton(buttonMiddleR, finalImageWidth);
+			
+			ResizeButton(buttonBottomR, finalImageWidth);
+			ResizeButton(buttonBottomM, finalImageWidth);
+			ResizeButton(buttonBottomL, finalImageWidth);
+			
+			//buttonBottomL.tint = 0xffffff;
+			
+			contra = game.add.sprite(gameWidth/2,gameHeight/2, 'arrow');
+			//Enable the physics body on this sprite and turn off the visual debugger
 			game.physics.p2.enable(contra, true);
-
-			//	Just starts it rotating
-			game.input.onDown.add(onDown, this);
+						
+			//100% W is 1152px
+			var minProportion = Math.min(gameWidth, gameHeight);
+			var arrowProportion = minProportion / 950;
 			
 			//	Clear the shapes and load the 'arrow' polygon from the physicsData JSON file in the cache
 			contra.body.clearShapes();
+			contra.scale.setTo(arrowProportion, arrowProportion);
+		}
+		
+		function ResizeButton(button, width)
+		{
+			//100% of images should be finalImageWidth
+			//calculate maximum image (width or height)
+			var maxImg = Math.max(button.width, button.height);
+			var proportion = width/maxImg;
 			
-			//100% W is 960px
-			var minProporcion = Math.min(game.width, game.height);
-			var arrowProporcion = minProporcion / 1152;
+			button.scale.setTo(proportion, proportion);
+			//now, reposition the button
+			//calculate change difference of width to the final width:
+			//var newWidthDiference = width*proportion - width;
+			//var newHeightDiference = width*proportion - width;
 			
-			contra.scale.setTo(arrowProporcion, arrowProporcion);
-			
-			//1- 
-			//2- Change sprite of button:
-			//button.frameName : string
+			//button.x = button.x + newWidthDiference/4;
+			//button.y = button.y + newHeightDiference/4;
 		}
 
-		function onDown()
+		function onClick()
 		{
 			// this is how you load an image dinamically and change the sprite
 			//this.game.load.image('profilepic','http://www.w3school.com.cn/i/ct_html5_canvas_image.gif');
@@ -94,11 +130,21 @@
 			
 			//contra.frameName = 'ct_html5_canvas_image.gif';
 			//contra.key = 'profilepico';
+			
+			move = !move;
+			if (move == false)
+			{
+				contra.body.rotateRight(0);
+				//if we stopped, we should show whatever image is selected!
+				
+				
+			}
 		}
+		
 		
 		function update() {
 
-			//if (start)
+			if (move)
 			{
 				contra.body.rotateRight(speed);
 			}
@@ -106,7 +152,7 @@
 		}
 
 		function render() {
-
+			game.debug.geom(floor,'rgba(255,255,255, 0.8)');
 		}
     };
 
