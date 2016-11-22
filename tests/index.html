@@ -21,21 +21,23 @@
 
     window.onload = function() {
 	
-		var game = new Phaser.Game(1200, 900, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+		var game = new Phaser.Game('99', '99', Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 		
 		function preload() {
 
-			game.load.image('arrow', 'http://www.w3school.com.cn/i/ct_html5_canvas_image.gif'); //'arrow.png');
-
-			//	Load our physics data exported from PhysicsEditor
-			game.load.physics('physicsData', 'assets/physics/sprites.json');
-
+			game.load.image('arrow', 'arrow.png');
+			game.load.image('buttonPlus','set1/plus.png');
+			game.load.image('buttonMinus','set1/minus.png');
+			game.load.image('buttonAdd','set1/file_add.png');
+			game.load.image('buttonSearch','set1/file_search.png');
 		}
 
 		var contra;
 		var start = false;
 		var speed = 5;
 		var urlData = getJsonFromUrl();
+		var buttonTopL, buttonTopM, buttonTopR, buttonMiddleL, buttonMiddleR, buttonBottomL, buttonBottomM, buttonBottomR;
+		
 		if(urlData["speed"] != undefined)
 		{
 			speed = urlData["speed"];
@@ -45,21 +47,55 @@
 
 			//	Enable p2 physics
 			game.physics.startSystem(Phaser.Physics.P2JS);
+			
+			var posTLx = (game.width - (game.width/3*2))/2 - (game.cache.getImage('buttonMinus').width/2);
+			var posTLy = (game.height - (game.height/3*2))/2 - (game.cache.getImage('buttonMinus').height/2);
+			
 
+			buttonTopL = game.add.button(posTLx, posTLy, 'buttonPlus', null, this, 0, 0, 0);
+			buttonTopM = game.add.button(game.width/3 + posTLx, posTLy, 'buttonMinus', null, this, 0, 0, 0);
+			buttonTopR = game.add.button(game.width/3*2 + posTLx, posTLy, 'buttonPlus', null, this, 0, 0, 0);
+			
+			buttonMiddleL = game.add.button(posTLx, game.height/3 + posTLy, 'buttonAdd', null, this, 0, 0, 0);
+			buttonMiddleR = game.add.button(game.width/3*2 + posTLx, game.height/3 + posTLy, 'buttonSearch', null, this, 0, 0, 0);
+			
+			buttonBottomL = game.add.button(posTLx, game.height/3*2 + posTLy, 'buttonMinus', null, this, 0, 0, 0);
+			buttonBottomM = game.add.button(game.width/3 + posTLx, game.height/3*2 + posTLy, 'buttonPlus', null, this, 0, 0, 0);
+			buttonBottomR = game.add.button(game.width/3*2 + posTLx, game.height/3*2 + posTLy, 'buttonMinus', null, this, 0, 0, 0);
+			
+			
 			contra = game.add.sprite(game.world.centerX,game.world.centerY, 'arrow');
 
 			//	Enable the physics body on this sprite and turn on the visual debugger
 			game.physics.p2.enable(contra, true);
 
+			//	Just starts it rotating
+			game.input.onDown.add(onDown, this);
+			
 			//	Clear the shapes and load the 'arrow' polygon from the physicsData JSON file in the cache
 			contra.body.clearShapes();
-			contra.body.loadPolygon('physicsData', 'arrow');
-
-			//	Just starts it rotating
-			//game.input.onDown.add(function() { start = !start; }, this);
-
+			
+			//100% W is 960px
+			var minProporcion = Math.min(game.width, game.height);
+			var arrowProporcion = minProporcion / 1152;
+			
+			contra.scale.setTo(arrowProporcion, arrowProporcion);
+			
+			//1- 
+			//2- Change sprite of button:
+			//button.frameName : string
 		}
 
+		function onDown()
+		{
+			// this is how you load an image dinamically and change the sprite
+			//this.game.load.image('profilepic','http://www.w3school.com.cn/i/ct_html5_canvas_image.gif');
+			//contra.loadTexture('profilepic', 0);
+			
+			//contra.frameName = 'ct_html5_canvas_image.gif';
+			//contra.key = 'profilepico';
+		}
+		
 		function update() {
 
 			//if (start)
