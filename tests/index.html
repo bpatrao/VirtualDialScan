@@ -21,21 +21,20 @@
 
     window.onload = function() {
 	
-		var game = new Phaser.Game(1200, 900, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+		var game = new Phaser.Game('99', '99', Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
 		
 		function preload() {
 
-			game.load.image('arrow', 'http://www.w3school.com.cn/i/ct_html5_canvas_image.gif'); //'arrow.png');
-
-			//	Load our physics data exported from PhysicsEditor
-			game.load.physics('physicsData', 'assets/physics/sprites.json');
-
+			game.load.image('arrow', 'arrow.png');
+			game.load.image('button','http://www.w3school.com.cn/i/ct_html5_canvas_image.gif');
 		}
 
 		var contra;
 		var start = false;
 		var speed = 5;
 		var urlData = getJsonFromUrl();
+		var buttonTopL, buttonTopM, buttonTopR, buttonMiddleL, buttonMiddleR, buttonBottomL, buttonBottomM, buttonBottomR;
+		
 		if(urlData["speed"] != undefined)
 		{
 			speed = urlData["speed"];
@@ -46,20 +45,41 @@
 			//	Enable p2 physics
 			game.physics.startSystem(Phaser.Physics.P2JS);
 
+			buttonTopL = game.add.button(0, 0, 'button', onDown, this, 0, 0, 0);
+			
+			
 			contra = game.add.sprite(game.world.centerX,game.world.centerY, 'arrow');
 
 			//	Enable the physics body on this sprite and turn on the visual debugger
 			game.physics.p2.enable(contra, true);
 
+			//	Just starts it rotating
+			game.input.onDown.add(onDown, this);
+			
 			//	Clear the shapes and load the 'arrow' polygon from the physicsData JSON file in the cache
 			contra.body.clearShapes();
-			contra.body.loadPolygon('physicsData', 'arrow');
-
-			//	Just starts it rotating
-			//game.input.onDown.add(function() { start = !start; }, this);
-
+			
+			//100% W is 960px
+			var minProporcion = Math.min(game.width, game.height);
+			var arrowProporcion = minProporcion / 1152;
+			
+			contra.scale.setTo(arrowProporcion, arrowProporcion);
+			
+			//1- 
+			//2- Change sprite of button:
+			//button.frameName : string
 		}
 
+		function onDown()
+		{
+			// this is how you load an image dinamically and change the sprite
+			//this.game.load.image('profilepic','http://www.w3school.com.cn/i/ct_html5_canvas_image.gif');
+			//contra.loadTexture('profilepic', 0);
+			
+			//contra.frameName = 'ct_html5_canvas_image.gif';
+			//contra.key = 'profilepico';
+		}
+		
 		function update() {
 
 			//if (start)
