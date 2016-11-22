@@ -26,7 +26,10 @@
 		function preload() {
 
 			game.load.image('arrow', 'arrow.png');
-			game.load.image('button','http://www.w3school.com.cn/i/ct_html5_canvas_image.gif');
+			game.load.image('buttonPlus','set1/plus.png');
+			game.load.image('buttonMinus','set1/minus.png');
+			game.load.image('buttonAdd','set1/file_add.png');
+			game.load.image('buttonSearch','set1/file_search.png');
 		}
 
 		var contra;
@@ -44,8 +47,21 @@
 
 			//	Enable p2 physics
 			game.physics.startSystem(Phaser.Physics.P2JS);
+			
+			var posTLx = (game.width - (game.width/3*2))/2 - (game.cache.getImage('buttonMinus').width/2);
+			var posTLy = (game.height - (game.height/3*2))/2 - (game.cache.getImage('buttonMinus').height/2);
+			
 
-			buttonTopL = game.add.button(0, 0, 'button', onDown, this, 0, 0, 0);
+			buttonTopL = game.add.button(posTLx, posTLy, 'buttonPlus', null, this, 0, 0, 0);
+			buttonTopM = game.add.button(game.width/3 + posTLx, posTLy, 'buttonMinus', null, this, 0, 0, 0);
+			buttonTopR = game.add.button(game.width/3*2 + posTLx, posTLy, 'buttonPlus', null, this, 0, 0, 0);
+			
+			buttonMiddleL = game.add.button(posTLx, game.height/3 + posTLy, 'buttonAdd', null, this, 0, 0, 0);
+			buttonMiddleR = game.add.button(game.width/3*2 + posTLx, game.height/3 + posTLy, 'buttonSearch', null, this, 0, 0, 0);
+			
+			buttonBottomL = game.add.button(posTLx, game.height/3*2 + posTLy, 'buttonMinus', null, this, 0, 0, 0);
+			buttonBottomM = game.add.button(game.width/3 + posTLx, game.height/3*2 + posTLy, 'buttonPlus', null, this, 0, 0, 0);
+			buttonBottomR = game.add.button(game.width/3*2 + posTLx, game.height/3*2 + posTLy, 'buttonMinus', null, this, 0, 0, 0);
 			
 			
 			contra = game.add.sprite(game.world.centerX,game.world.centerY, 'arrow');
