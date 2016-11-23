@@ -4,9 +4,14 @@
         <meta charset="UTF-8" />
         <title>hello phaser!</title>
         <script src="//cdn.jsdelivr.net/phaser/2.5.0/phaser.min.js"></script>
+		
+		
+		
+		
+		
     </head>
     <body style="padding:0px; margin:0px;">
-
+	<input type="file" id="fileChooser" onchange="handleFiles(this.files)" style="display:none" />
     <script type="text/javascript">
 
 	function getJsonFromUrl() {
@@ -18,142 +23,213 @@
 	  });
 	  return result;
 	}
+	
+	var positionToPlaceImage = "";
+	
+	function handleFiles(files)
+	{
+	
+		// Loop through the FileList and render image files as thumbnails.
+		for (var i = 0, f; f = files[i]; i++) {
+			selectedImageName = f.name;
+			
+			var reader = new FileReader();
 
+			// Closure to capture the file information.
+			reader.onload = (function(theFile) {
+				return function(e) {
+					dataURI = e.target.result;
+					var data = new Image();
+					data.src = dataURI;
+					try {
+					game.cache.removeImage(positionToPlaceImage+'image');
+					} catch(e) {};
+					
+					game.cache.addImage(positionToPlaceImage+'image', dataURI, data);
+					
+					if(positionToPlaceImage == "TL") {
+						buttonTopL.loadTexture(positionToPlaceImage+'image', 0);
+						ResizeButton(buttonTopL, finalImageWidth);
+					} else if(positionToPlaceImage == "TM") {
+						buttonTopM.loadTexture(positionToPlaceImage+'image', 0);
+						ResizeButton(buttonTopM, finalImageWidth);
+					} else if(positionToPlaceImage == "TR") {
+						buttonTopR.loadTexture(positionToPlaceImage+'image', 0);
+						ResizeButton(buttonTopR, finalImageWidth);
+					} else if(positionToPlaceImage == "ML") {
+						buttonMiddleL.loadTexture(positionToPlaceImage+'image', 0);
+						ResizeButton(buttonMiddleL, finalImageWidth);
+					} else if(positionToPlaceImage == "MR") {
+						buttonMiddleR.loadTexture(positionToPlaceImage+'image', 0);
+						ResizeButton(buttonMiddleR, finalImageWidth);
+					} else if(positionToPlaceImage == "BL") {
+						buttonBottomL.loadTexture(positionToPlaceImage+'image', 0);
+						ResizeButton(buttonBottomL, finalImageWidth);
+					} else if(positionToPlaceImage == "BM") {
+						buttonBottomM.loadTexture(positionToPlaceImage+'image', 0);
+						ResizeButton(buttonBottomM, finalImageWidth);
+					} else if(positionToPlaceImage == "BR") {
+						buttonBottomR.loadTexture(positionToPlaceImage+'image', 0);
+						ResizeButton(buttonBottomR, finalImageWidth);
+						
+					}
+				};
+			})(f);
+
+			// Read in the image file as a data URL.
+			reader.readAsDataURL(f);
+		}
+	}
+	
+	var toolbarSz = window.innerWidth*.15;
+	var gameWidth = window.innerWidth-1-toolbarSz;
+	var gameHeight = window.innerHeight-1;
+	var contra;
+	var padd = 20;
+	var finalImageWidth = Math.min(gameWidth/3, gameHeight/3) - padd*2;
+	var move = true;
+	var speed = 6;
+	var urlData = getJsonFromUrl();
+	var buttonTopL, buttonTopM, buttonTopR, buttonMiddleL, buttonMiddleR, buttonBottomL, buttonBottomM, buttonBottomR;
+	var floor;
+	var game;
+	
+	if(urlData["speed"] != undefined)
+	{
+		speed = urlData["speed"];
+	}
+	
+	function preload() {
+		game.load.image('arrow', 'arrow.png');
+		game.load.image('buttonPlus','set1/plus.png');
+		game.load.image('buttonMinus','set1/minus.png');
+		game.load.image('buttonAdd','set1/file_add.png');
+		game.load.image('buttonSearch','set1/file_search.png');
+		//game.load.image('buttonNoPic','set1/nopic.png');
+		
+		 game.load.spritesheet('buttonNoPic', 'set1/nopic.png', 128, 128)
+	}
+
+	function create() {
+
+		//	Enable p2 physics
+		game.physics.startSystem(Phaser.Physics.P2JS);
+		
+		key1 = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+		key1.onDown.add(onClick, this);
+		
+		key2 = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+		key2.onDown.add(onClick, this);
+		
+		game.input.onTap.add(onClick, this);
+		floor = new Phaser.Rectangle(gameWidth, 0, gameWidth+toolbarSz, gameHeight);
+		
+		buttonTopL = game.add.button(padd, padd, 								'buttonNoPic', browseForImage, this, 1, 0, 0);
+		buttonTopL.name = "TL";
+		
+		buttonTopM = game.add.button(gameWidth/2 - finalImageWidth/2, padd, 	'buttonNoPic', browseForImage, this, 1, 0, 0);
+		buttonTopM.name = "TM";
+				
+		buttonTopR = game.add.button(gameWidth - finalImageWidth - padd, padd, 	'buttonNoPic', browseForImage, this, 1, 0, 0);
+		buttonTopR.name = "TR";
+		
+		buttonMiddleL = game.add.button(padd, gameHeight/2 - finalImageWidth/2, 								'buttonNoPic', browseForImage, this, 1, 0, 0);
+		buttonMiddleL.name = "ML";
+		buttonMiddleR = game.add.button(gameWidth - finalImageWidth - padd, gameHeight/2 - finalImageWidth/2, 	'buttonNoPic', browseForImage, this, 1, 0, 0);
+		buttonMiddleR.name = "MR";
+		
+		buttonBottomL = game.add.button(padd, gameHeight - finalImageWidth - padd, 'buttonNoPic', browseForImage, this, 1, 0, 0);
+		buttonBottomL.name = "BL";
+		
+		buttonBottomM = game.add.button(gameWidth/2 - finalImageWidth/2, gameHeight - finalImageWidth - padd, 'buttonNoPic', browseForImage, this, 1, 0, 0);
+		buttonBottomM.name = "BM";
+		
+		buttonBottomR = game.add.button(gameWidth - finalImageWidth - padd, gameHeight - finalImageWidth - padd, 'buttonNoPic', browseForImage, this, 1, 0, 0);
+		buttonBottomR.name = "BR";
+		
+		ResizeButton(buttonTopL, finalImageWidth);
+		ResizeButton(buttonTopM, finalImageWidth);
+		ResizeButton(buttonTopR, finalImageWidth);
+		
+		ResizeButton(buttonMiddleL, finalImageWidth);
+		ResizeButton(buttonMiddleR, finalImageWidth);
+		
+		ResizeButton(buttonBottomR, finalImageWidth);
+		ResizeButton(buttonBottomM, finalImageWidth);
+		ResizeButton(buttonBottomL, finalImageWidth);
+		
+		//buttonBottomL.tint = 0xffffff;
+		
+		contra = game.add.sprite(gameWidth/2,gameHeight/2, 'arrow');
+		//Enable the physics body on this sprite and turn off the visual debugger
+		game.physics.p2.enable(contra, true);
+					
+		//100% W is 1152px
+		var minProportion = Math.min(gameWidth, gameHeight);
+		var arrowProportion = minProportion / 950;
+		
+		//	Clear the shapes and load the 'arrow' polygon from the physicsData JSON file in the cache
+		contra.body.clearShapes();
+		contra.scale.setTo(arrowProportion, arrowProportion);
+	}
+		
+	function ResizeButton(button, width)
+	{
+		//100% of images should be finalImageWidth
+		//calculate maximum image (width or height)
+		var maxImg = Math.max(button.width, button.height);
+		var proportion = width/maxImg;
+		
+		button.scale.setTo(proportion, proportion);
+	}
+
+	function browseForImage(button, pointer) 
+	{
+		console.log('you clicked', button.name);
+		positionToPlaceImage = button.name;
+		document.getElementById("fileChooser").click();
+		
+		
+		// this is how you load an image dinamically and change the sprite
+		//this.game.load.image('profilepic','http://www.w3school.com.cn/i/ct_html5_canvas_image.gif');
+		//contra.loadTexture('profilepic', 0);
+	}
+
+	function onClick()
+	{			
+		move = !move;
+		if (move == false)
+		{
+			contra.body.rotateRight(0);
+			
+			//TODO: if we stopped, we should show whatever image is selected!
+						
+		}
+	}
+	
+	function update() {
+
+		if (move)
+		{
+			contra.body.rotateRight(speed);
+		}
+
+	}
+
+	function render() {
+		game.debug.geom(floor,'rgba(255,255,255, 0.8)');
+	}
+	
+	
+	
+	
+	
+	
+	
+	
     window.onload = function() {
-
-		var toolbarSz = 50;
-		var gameWidth = window.innerWidth-1;
-		var gameHeight = window.innerHeight-1-toolbarSz;
-
-		
-		var game = new Phaser.Game(gameWidth, gameHeight+toolbarSz, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render });
-		
-		function preload() {
-
-			game.load.image('arrow', 'arrow.png');
-			game.load.image('buttonPlus','set1/plus.png');
-			game.load.image('buttonMinus','set1/minus.png');
-			game.load.image('buttonAdd','set1/file_add.png');
-			game.load.image('buttonSearch','set1/file_search.png');
-		}
-
-
-		var contra;
-		var padd = 20;
-		var finalImageWidth = Math.min(gameWidth/3, gameHeight/3) - padd*2;
-		var move = true;
-		var speed = 6;
-		var urlData = getJsonFromUrl();
-		var buttonTopL, buttonTopM, buttonTopR, buttonMiddleL, buttonMiddleR, buttonBottomL, buttonBottomM, buttonBottomR;
-		var floor;
-		
-		if(urlData["speed"] != undefined)
-		{
-			speed = urlData["speed"];
-		}
-		
-		function create() {
-
-			//	Enable p2 physics
-			game.physics.startSystem(Phaser.Physics.P2JS);
-			
-			key1 = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-			key1.onDown.add(onClick, this);
-			
-			key2 = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
-			key2.onDown.add(onClick, this);
-			game.input.onTap.add(onClick, this);
-			floor = new Phaser.Rectangle(0, gameHeight, gameWidth, gameHeight+toolbarSz);
-
-			var posTLx = (gameWidth/3)/2  - (gameWidth/4)/2;
-			var posTLy = (gameHeight/3)/2 - (gameHeight/4)/2;
-			
-			buttonTopL = game.add.button(padd, padd, 'buttonPlus', null, this, 0, 0, 0);
-			buttonTopM = game.add.button(gameWidth/2 - finalImageWidth/2, padd, 'buttonMinus', null, this, 0, 0, 0);
-			buttonTopR = game.add.button(gameWidth - finalImageWidth - padd, padd, 'buttonPlus', null, this, 0, 0, 0);
-						
-			buttonMiddleL = game.add.button(padd, gameHeight/2 - finalImageWidth/2, 'buttonAdd', null, this, 0, 0, 0);
-			buttonMiddleR = game.add.button(gameWidth - finalImageWidth - padd, gameHeight/2 - finalImageWidth/2, 'buttonSearch', null, this, 0, 0, 0);
-			
-			buttonBottomL = game.add.button(padd, gameHeight - finalImageWidth - padd, 'buttonMinus', null, this, 0, 0, 0);
-			buttonBottomM = game.add.button(gameWidth/2 - finalImageWidth/2, gameHeight - finalImageWidth - padd, 'buttonPlus', null, this, 0, 0, 0);
-			buttonBottomR = game.add.button(gameWidth - finalImageWidth - padd, gameHeight - finalImageWidth - padd, 'buttonMinus', null, this, 0, 0, 0);
-			
-			ResizeButton(buttonTopL, finalImageWidth);
-			ResizeButton(buttonTopM, finalImageWidth);
-			ResizeButton(buttonTopR, finalImageWidth);
-			
-			ResizeButton(buttonMiddleL, finalImageWidth);
-			ResizeButton(buttonMiddleR, finalImageWidth);
-			
-			ResizeButton(buttonBottomR, finalImageWidth);
-			ResizeButton(buttonBottomM, finalImageWidth);
-			ResizeButton(buttonBottomL, finalImageWidth);
-			
-			//buttonBottomL.tint = 0xffffff;
-			
-			contra = game.add.sprite(gameWidth/2,gameHeight/2, 'arrow');
-			//Enable the physics body on this sprite and turn off the visual debugger
-			game.physics.p2.enable(contra, true);
-						
-			//100% W is 1152px
-			var minProportion = Math.min(gameWidth, gameHeight);
-			var arrowProportion = minProportion / 950;
-			
-			//	Clear the shapes and load the 'arrow' polygon from the physicsData JSON file in the cache
-			contra.body.clearShapes();
-			contra.scale.setTo(arrowProportion, arrowProportion);
-		}
-		
-		function ResizeButton(button, width)
-		{
-			//100% of images should be finalImageWidth
-			//calculate maximum image (width or height)
-			var maxImg = Math.max(button.width, button.height);
-			var proportion = width/maxImg;
-			
-			button.scale.setTo(proportion, proportion);
-			//now, reposition the button
-			//calculate change difference of width to the final width:
-			//var newWidthDiference = width*proportion - width;
-			//var newHeightDiference = width*proportion - width;
-			
-			//button.x = button.x + newWidthDiference/4;
-			//button.y = button.y + newHeightDiference/4;
-		}
-
-		function onClick()
-		{
-			// this is how you load an image dinamically and change the sprite
-			//this.game.load.image('profilepic','http://www.w3school.com.cn/i/ct_html5_canvas_image.gif');
-			//contra.loadTexture('profilepic', 0);
-			
-			//contra.frameName = 'ct_html5_canvas_image.gif';
-			//contra.key = 'profilepico';
-			
-			move = !move;
-			if (move == false)
-			{
-				contra.body.rotateRight(0);
-				//if we stopped, we should show whatever image is selected!
-				
-				
-			}
-		}
-		
-		
-		function update() {
-
-			if (move)
-			{
-				contra.body.rotateRight(speed);
-			}
-
-		}
-
-		function render() {
-			game.debug.geom(floor,'rgba(255,255,255, 0.8)');
-		}
+		game = new Phaser.Game(gameWidth+toolbarSz, gameHeight, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+		game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     };
 
     </script>
