@@ -166,7 +166,7 @@
 					
 		//100% W is 1152px
 		var minProportion = Math.min(gameWidth, gameHeight);
-		var arrowProportion = minProportion / 950;
+		var arrowProportion = minProportion / 750;
 		
 		//	Clear the shapes and load the 'arrow' polygon from the physicsData JSON file in the cache
 		contra.body.clearShapes();
@@ -203,8 +203,56 @@
 			contra.body.rotateRight(0);
 			
 			//TODO: if we stopped, we should show whatever image is selected!
-						
+			//check the frame names of the button that we are hitting!
+			
+			button = getSelectedButton();
+			console.log('button name: ', button.name);
+			
+			//
+			//if button.key != buttonNoPic
+			//
+			
 		}
+	}
+	
+	function getSelectedButton()
+	{
+		var button;
+		var angle = contra.body.angle;
+		if(angle > -22.5 && angle <= 22.5)
+		{
+			button = buttonMiddleR;
+		}
+		else if(angle > 22.5 && angle <= 67.5)
+		{
+			button = buttonBottomR;
+		}
+		else if(angle > 67.5 && angle <= 112.5)
+		{
+			button = buttonBottomM;
+		}
+		else if(angle > 112.5 && angle <= 157.5)
+		{
+			button = buttonBottomL;
+		}
+		else if(angle > 157.5 || angle <= -157.5)
+		{
+			button = buttonMiddleL;
+		}
+		else if(angle > -157.5 && angle <= -112.5)
+		{
+			button = buttonTopL;
+		}
+		else if(angle > -112.5 && angle <= -67.5)
+		{
+			button = buttonTopM;
+		}
+		else if(angle > -67.5 && angle <= -22.5)
+		{
+			button = buttonTopR;
+		}
+		
+		return button;
 	}
 	
 	function update() {
@@ -214,18 +262,13 @@
 			contra.body.rotateRight(speed);
 		}
 
+		button = getSelectedButton();
+		//console.log('selectable button name: ', button.name);
 	}
 
 	function render() {
 		game.debug.geom(floor,'rgba(255,255,255, 0.8)');
 	}
-	
-	
-	
-	
-	
-	
-	
 	
     window.onload = function() {
 		game = new Phaser.Game(gameWidth+toolbarSz, gameHeight, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
