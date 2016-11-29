@@ -27,10 +27,7 @@
         <title>VirtualDialScan</title>
         <script src="//cdn.jsdelivr.net/phaser/2.5.0/phaser.min.js"></script>
 		
-		
-		
-		
-		
+	
     </head>
     <body style="padding:0px; margin:0px;">
 	<input type="file" id="fileChooser" onchange="handleFiles(this.files)" style="display:none" />
@@ -107,7 +104,7 @@
 	var gameWidth = window.innerWidth-1-toolbarSz;
 	var gameHeight = window.innerHeight-1;
 	var contra;
-	var padd = 20;
+	var padd = 20*gameWidth/1087;
 	var finalImageWidth = Math.min(gameWidth/3, gameHeight/3) - padd*2;
 	var move = true;
 	var speed = 5;
@@ -123,6 +120,7 @@
 	var toolbarGrp;
 	var currentSchema = 0;
 	var toolbarButtonClicked = 0;
+	var textLevel;
 	
 	if(urlData["speed"] != undefined)
 	{
@@ -219,13 +217,14 @@
 		
 		drawRectangle(toolbar);
 		
-		buttonNextLevel = game.add.button(toolbar.x + padd, toolbar.y + padd, 'buttonPlus', nextLevel, this, 1, 0, 0);
+		buttonPreviousLevel = game.add.button(toolbar.x + padd, toolbar.y + padd + game.height/3, 'buttonMinus', previousLevel, this, 1, 0, 0);
 		//buttonNextLevel.width = toolbar.width/3;
-		buttonNextLevel.scale.setTo(toolbar.width/3/buttonNextLevel.width, toolbar.width/3/buttonNextLevel.width);
-		buttonPreviousLevel = game.add.button(toolbar.x + toolbar.width/3*2 - padd, toolbar.y + padd, 'buttonMinus', previousLevel, this, 1, 0, 0);
 		buttonPreviousLevel.scale.setTo(toolbar.width/3/buttonPreviousLevel.width, toolbar.width/3/buttonPreviousLevel.width);
 		
-		buttonChangeColorSchema = game.add.button(toolbar.x + padd, toolbar.y + padd*2 + buttonNextLevel.height, 'buttonSearch', changeSchema, this, 1, 0, 0);
+		buttonNextLevel = game.add.button(toolbar.x + toolbar.width/3*2 - padd, toolbar.y + padd + game.height/3, 'buttonPlus', nextLevel, this, 1, 0, 0);
+		buttonNextLevel.scale.setTo(toolbar.width/3/buttonNextLevel.width, toolbar.width/3/buttonNextLevel.width);
+		
+		buttonChangeColorSchema = game.add.button(toolbar.x + padd, toolbar.y + padd*2 + buttonNextLevel.height+ game.height*2/3, 'buttonSearch', changeSchema, this, 1, 0, 0);
 		buttonChangeColorSchema.scale.setTo(toolbar.width/3/buttonChangeColorSchema.width, toolbar.width/3/buttonChangeColorSchema.width);
 		buttonChangeColorSchema.input.priorityID = 1;
 		
@@ -290,6 +289,15 @@
 		//	Clear the shapes and load the 'arrow' polygon from the physicsData JSON file in the cache
 		contra.body.clearShapes();
 		contra.scale.setTo(arrowProportion, arrowProportion);
+		
+		//add arrow to a group
+		//groupArrow = game.add.group();
+		//groupArrow.add(contra);
+		
+		//Level text
+		var textL = "Level "+speed;
+		var style = { font: "Arial", fontSize: 60*toolbarSz/288, fill: "#ff0044", align: "center" };
+		textLevel = game.add.text(toolbar.x + padd, toolbar.y + padd, textL, style);
 	}
 
 	function nextLevel()
@@ -423,8 +431,7 @@
 
 		button = getSelectedButton();
 		//console.log('selectable button name: ', button.name);
-		
-		
+		//console.log('toolbar witdth sz: ', toolbarSz);
 	}
 
 	function render() {
@@ -432,8 +439,8 @@
 		//game.debug.geom(toolbar,'rgba(255,255,255, 0.9)');
 		
 		button = getSelectedButton();
-		if(button.name == "TL")	{
-			game.debug.geom(rectangleTL,tintColor);
+		if (button.name == "TL")	{
+			game.debug.spriteBounds(buttonTopL,tintColor);
 		} else if(button.name == "TM") {
 			game.debug.geom(rectangleTM,tintColor);
 		} else if(button.name == "TR") {
@@ -449,6 +456,12 @@
 		} else if(button.name == "BR") {
 			game.debug.geom(rectangleBR,tintColor);
 		}
+
+		//Update Level text
+		textLevel.setText( "Level "+speed);
+
+		//Bring the Arrow to Top
+		//game.world.bringToTop(groupArrow);
 	}
 	
     window.onload = function() {
