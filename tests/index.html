@@ -2,7 +2,13 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>hello phaser!</title>
+		<meta name="HandheldFriendly" content="true" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="apple-mobile-web-app-title" content="VirtualDialScan"/>
+		<meta name="viewport" content="initial-scale=1 maximum-scale=1 user-scalable=0 minimal-ui" />
+
+        <title>VirtualDialScan</title>
         <script src="//cdn.jsdelivr.net/phaser/2.5.0/phaser.min.js"></script>
 		
 		
@@ -88,12 +94,19 @@
 	var padd = 20;
 	var finalImageWidth = Math.min(gameWidth/3, gameHeight/3) - padd*2;
 	var move = true;
-	var speed = 6;
+	var speed = 5;
 	var urlData = getJsonFromUrl();
 	var buttonTopL, buttonTopM, buttonTopR, buttonMiddleL, buttonMiddleR, buttonBottomL, buttonBottomM, buttonBottomR;
+	var buttonNextLevel, buttonPreviousLevel;
 	var toolbar;
 	var rectangleTL, rectangleTM, rectangleTR, rectangleML, rectangleMR, rectangleBL, rectangleBM, rectangleBR;
+	var bgColor = '0xffffff';
+	var tintColor = 'rgba(255,255,255, 0.3)';
 	var game;
+	var toolbarColor = '#ffffff';
+	var toolbarGrp;
+	var currentSchema = 0;
+	var toolbarButtonClicked = 0;
 	
 	if(urlData["speed"] != undefined)
 	{
@@ -110,6 +123,65 @@
 		
 		 game.load.spritesheet('buttonNoPic', 'set1/nopic.png', 128, 128)
 	}
+	
+	function changeSchema()
+	{
+		currentSchema+=1;
+		if(currentSchema == 3)
+		{
+			currentSchema = 0; //only 3 schemas available at the moment...
+		}
+		
+		switch(currentSchema)
+		{
+			case 0:
+				game.stage.backgroundColor = '#000000';
+				tintColor = 'rgba(255,255,255, 0.3)';
+				toolbarColor = '#ffffff'
+				break;
+			case 1:
+				game.stage.backgroundColor = '#ffffff';
+				tintColor = 'rgba(0,255,0, 0.3)';
+				toolbarColor = '#555555'
+				break;
+			case 2:
+				game.stage.backgroundColor = '#E6E6FA';
+				tintColor = 'rgba(0,255,255, 0.3)';
+				toolbarColor = '#66eeff'
+				break;
+			default:
+				game.stage.backgroundColor = '#000000';
+				tintColor = 'rgba(255,255,255, 0.3)';
+				toolbarColor = '#ffffff'
+				break;
+		}
+
+		//redraw toolbar
+		drawRectangle(toolbar);
+				
+		//move toolbar buttons to the top
+		toolbarGrp.bringToTop();
+
+		toolbarButtonClicked = 1;
+		move = 1;
+	}
+	
+	function drawRectangle(rect)
+	{
+		var drawObj;
+		var width = rect.width;
+		var height = rect.height;
+		var bmd = game.add.bitmapData(width, height);
+		 
+		bmd.ctx.beginPath();
+		bmd.ctx.rect(0, 0, width, height);
+		bmd.ctx.fillStyle = toolbarColor;
+		bmd.ctx.fill();
+		drawObj = game.add.sprite(rect.x, rect.y, bmd);
+		drawObj.anchor.setTo(0.0, 0.0);
+
+		backgrndGrp.add(drawObj);
+	}
 
 	function create() {
 
@@ -123,7 +195,28 @@
 		key2.onDown.add(onClick, this);
 		
 		game.input.onTap.add(onClick, this);
-		toolbar = new Phaser.Rectangle(gameWidth, 0, gameWidth+toolbarSz, gameHeight);
+		game.input.priorityID = 1;
+		toolbar = new Phaser.Rectangle(gameWidth, 0, toolbarSz, gameHeight);
+		
+		backgrndGrp = game.add.group();
+		toolbarGrp = game.add.group();
+		
+		drawRectangle(toolbar);
+		
+		buttonNextLevel = game.add.button(toolbar.x + padd, toolbar.y + padd, 'buttonPlus', nextLevel, this, 1, 0, 0);
+		//buttonNextLevel.width = toolbar.width/3;
+		buttonNextLevel.scale.setTo(toolbar.width/3/buttonNextLevel.width, toolbar.width/3/buttonNextLevel.width);
+		buttonPreviousLevel = game.add.button(toolbar.x + toolbar.width/3*2 - padd, toolbar.y + padd, 'buttonMinus', previousLevel, this, 1, 0, 0);
+		buttonPreviousLevel.scale.setTo(toolbar.width/3/buttonPreviousLevel.width, toolbar.width/3/buttonPreviousLevel.width);
+		
+		buttonChangeColorSchema = game.add.button(toolbar.x + padd, toolbar.y + padd*2 + buttonNextLevel.height, 'buttonSearch', changeSchema, this, 1, 0, 0);
+		buttonChangeColorSchema.scale.setTo(toolbar.width/3/buttonChangeColorSchema.width, toolbar.width/3/buttonChangeColorSchema.width);
+		buttonChangeColorSchema.input.priorityID = 1;
+		
+		toolbarGrp.add(buttonNextLevel);
+		toolbarGrp.add(buttonPreviousLevel);
+		toolbarGrp.add(buttonChangeColorSchema);
+		
 		
 		buttonTopL = game.add.button(padd, padd, 								'buttonNoPic', browseForImage, this, 1, 0, 0);
 		buttonTopL.name = "TL";
@@ -182,7 +275,40 @@
 		contra.body.clearShapes();
 		contra.scale.setTo(arrowProportion, arrowProportion);
 	}
+
+	function nextLevel()
+	{
+		if(speed < 5)
+		{
+			speed+=1;
+		}
+		else
+		{
+			speed+=5;
+		}
 		
+		toolbarButtonClicked = 1;
+		move = 1;
+	}
+	
+	function previousLevel()
+	{
+		if(speed > 1)
+		{
+			if(speed <= 5)
+			{
+				speed-=1;
+			}
+			else
+			{
+				speed -= 5;
+			}
+		}
+		
+		toolbarButtonClicked = 1;
+		move = 1;
+	}
+
 	function ResizeButton(button, width)
 	{
 		//100% of images should be finalImageWidth
@@ -206,22 +332,29 @@
 	}
 
 	function onClick()
-	{			
-		move = !move;
-		if (move == false)
+	{	
+		if (toolbarButtonClicked == 1)
 		{
-			contra.body.rotateRight(0);
-			
-			//TODO: if we stopped, we should show whatever image is selected!
-			//check the frame names of the button that we are hitting!
-			
-			button = getSelectedButton();
-			console.log('button name: ', button.name);
-			
-			//
-			//if button.key != buttonNoPic
-			//
-			
+			toolbarButtonClicked = 0;
+		}
+		else
+		{
+			move = !move;
+			if (move == false)
+			{
+				contra.body.rotateRight(0);
+				
+				//TODO: if we stopped, we should show whatever image is selected!
+				//check the frame names of the button that we are hitting!
+				
+				button = getSelectedButton();
+				console.log('button name: ', button.name);
+				
+				//
+				//if button.key != buttonNoPic
+				//
+				
+			}
 		}
 	}
 	
@@ -280,31 +413,30 @@
 
 	function render() {
 		
-		game.debug.geom(toolbar,'rgba(255,255,255, 0.9)');
-		
+		//game.debug.geom(toolbar,'rgba(255,255,255, 0.9)');
 		
 		button = getSelectedButton();
 		if(button.name == "TL")	{
-			game.debug.geom(rectangleTL,'rgba(255,255,255, 0.3)');
+			game.debug.geom(rectangleTL,tintColor);
 		} else if(button.name == "TM") {
-			game.debug.geom(rectangleTM,'rgba(255,255,255, 0.3)');
+			game.debug.geom(rectangleTM,tintColor);
 		} else if(button.name == "TR") {
-			game.debug.geom(rectangleTR,'rgba(255,255,255, 0.3)');
+			game.debug.geom(rectangleTR,tintColor);
 		} else if(button.name == "ML") {
-			game.debug.geom(rectangleML,'rgba(255,255,255, 0.3)');
+			game.debug.geom(rectangleML,tintColor);
 		} else if(button.name == "MR") {
-			game.debug.geom(rectangleMR,'rgba(255,255,255, 0.3)');
+			game.debug.geom(rectangleMR,tintColor);
 		} else if(button.name == "BL") {
-			game.debug.geom(rectangleBL,'rgba(255,255,255, 0.3)');
+			game.debug.geom(rectangleBL,tintColor);
 		} else if(button.name == "BM") {
-			game.debug.geom(rectangleBM,'rgba(255,255,255, 0.3)');
+			game.debug.geom(rectangleBM,tintColor);
 		} else if(button.name == "BR") {
-			game.debug.geom(rectangleBR,'rgba(255,255,255, 0.3)');
+			game.debug.geom(rectangleBR,tintColor);
 		}
 	}
 	
     window.onload = function() {
-		game = new Phaser.Game(gameWidth+toolbarSz, gameHeight, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+		game = new Phaser.Game(gameWidth+toolbarSz, gameHeight, Phaser.CANVAS, 'VirtualDialScan', { preload: preload, create: create, update: update, render: render });
 		//game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     };
 
