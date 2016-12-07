@@ -7,22 +7,22 @@
 		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 		<meta name="apple-mobile-web-app-title" content="VirtualDialScan"/>
 		<meta name="viewport" content="initial-scale=1 maximum-scale=1 user-scalable=0 minimal-ui" />
-		<link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
-		<link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
-		<link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
-		<link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
-		<link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
-		<link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
-		<link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
-		<link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
-		<link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-		<link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
-		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-		<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
-		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-		<link rel="manifest" href="/manifest.json">
+		<link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
+		<link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
+		<link rel="apple-touch-icon" sizes="72x72" href="apple-icon-72x72.png">
+		<link rel="apple-touch-icon" sizes="76x76" href="apple-icon-76x76.png">
+		<link rel="apple-touch-icon" sizes="114x114" href="apple-icon-114x114.png">
+		<link rel="apple-touch-icon" sizes="120x120" href="apple-icon-120x120.png">
+		<link rel="apple-touch-icon" sizes="144x144" href="apple-icon-144x144.png">
+		<link rel="apple-touch-icon" sizes="152x152" href="apple-icon-152x152.png">
+		<link rel="apple-touch-icon" sizes="180x180" href="apple-icon-180x180.png">
+		<link rel="icon" type="image/png" sizes="192x192"  href="android-icon-192x192.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+		<link rel="manifest" href="manifest.json">
 		<meta name="msapplication-TileColor" content="#ffffff">
-		<meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+		<meta name="msapplication-TileImage" content="ms-icon-144x144.png">
 		<meta name="theme-color" content="#ffffff">
         <title>VirtualDialScan</title>
         <script src="//cdn.jsdelivr.net/phaser/2.5.0/phaser.min.js"></script>
@@ -33,17 +33,85 @@
 	<input type="file" id="fileChooser" onchange="handleFiles(this.files)" style="display:none" />
     <script type="text/javascript">
 
-	function getJsonFromUrl() {
-	  var query = location.search.substr(1);
-	  var result = {};
-	  query.split("&").forEach(function(part) {
-		var item = part.split("=");
-		result[item[0]] = decodeURIComponent(item[1]);
-	  });
-	  return result;
-	}
 	
+	
+	//Phaser Game Variable
+	var game;
+	
+	//////// Sizes / Widths / Heights
+	var toolbarSz = window.innerWidth*.15;
+	var gameWidth = window.innerWidth-1-toolbarSz;
+	var gameHeight = window.innerHeight-1;
+	var padd = 20*gameWidth/1087;
+	var finalImageWidth = Math.min(gameWidth/3, gameHeight/3) - padd*2;
+	
+	//////// Arrow variables:
+	//Arrow sprite
+	var arrowSprite;
+	//Arrow movement (yes/no)
+	var move = true;
+	//Arrow speed
+	var speed = 5;
+	
+	//////// Selectable areas variables:
+	//Buttons for the selectable areas
+	var buttonTopL, buttonTopM, buttonTopR, buttonMiddleL, buttonMiddleR, buttonBottomL, buttonBottomM, buttonBottomR;
+	//Rectangles for the selectable areas
+	var rectangleTL, rectangleTM, rectangleTR, rectangleML, rectangleMR, rectangleBL, rectangleBM, rectangleBR;
+	//Hover Sprites for the selectable areas
+	var spriteTL, spriteTM, spriteTR, spriteML, spriteMR, spriteBL, spriteBM, spriteBR;
+	//Color to hover the selectable areas with
+	var tintColor = 'rgba(255,255,255, 0.3)';
+
+	//Sprite groups (help us define the Z-order of elements grouped in these)
+	var backgrndGrp
+	var toolbarGrp;
+	var topGrp;
+	var buttonGrp;
+	var topMostGrp;
+	
+	////////// Toolbar Variables:
+	//Toolbar Rectangle + Toolbar Sprite
+	var toolbar;
+	var spriteToolbar;
+	//Toolbar buttons
+	var buttonNextLevel, buttonPreviousLevel, buttonChangeColorSchema;
+	//Text containing current level
+	var textLevel;
+	//Toolbar background color
+	var toolbarColor = '#ffffff';
+	
+	////////// Other Variables:
+	//Color Scheme
+	var currentSchema = 1;
+	//Position where the Image will be placed (used by the FileAPI handler)
 	var positionToPlaceImage = "";
+	//Control variable to know if a button on the toolbar has been pressed
+	var toolbarButtonClicked = 0;
+	//Handle to the Get (URL) Parameters and change default values (even load images?)
+	var urlData = getJsonFromUrl();
+	//FullScreen mode is on?
+	var fullScreen = 0;
+	var fullScreenBtn;
+	var fullScreenBtnX;
+	var fullScreenBtnY;
+	
+	if(urlData["speed"] != undefined)
+	{
+		speed = urlData["speed"];
+	}
+
+	function getJsonFromUrl()
+	{
+		var query = location.search.substr(1);
+		var result = {};
+		query.split("&").forEach(function(part) {
+			var item = part.split("=");
+			result[item[0]] = decodeURIComponent(item[1]);
+		});
+		
+		return result;
+	}
 	
 	function handleFiles(files)
 	{
@@ -55,16 +123,18 @@
 			var reader = new FileReader();
 
 			// Closure to capture the file information.
-			reader.onload = (function(theFile) {
-				return function(e) {
+			reader.onload = (function(theFile) 
+			{
+				return function(e) 
+				{
 					dataURI = e.target.result;
 					var data = new Image();
 					data.src = dataURI;
 					try {
-					game.cache.removeImage(positionToPlaceImage+'image');
+						game.cache.removeImage(positionToPlaceImage+'image');
 					} catch(e) {};
 					
-					game.cache.addImage(positionToPlaceImage+'image', dataURI, data);
+					var newImage = game.cache.addImage(positionToPlaceImage+'image', dataURI, data);
 					
 					if(positionToPlaceImage == "TL") {
 						buttonTopL.loadTexture(positionToPlaceImage+'image', 0);
@@ -89,9 +159,10 @@
 						ResizeButton(buttonBottomM, finalImageWidth);
 					} else if(positionToPlaceImage == "BR") {
 						buttonBottomR.loadTexture(positionToPlaceImage+'image', 0);
-						ResizeButton(buttonBottomR, finalImageWidth);
-						
+						ResizeButton(buttonBottomR, finalImageWidth);						
 					}
+					
+					topGrp.bringToTop();
 				};
 			})(f);
 
@@ -100,53 +171,21 @@
 		}
 	}
 	
-	var toolbarSz = window.innerWidth*.15;
-	var gameWidth = window.innerWidth-1-toolbarSz;
-	var gameHeight = window.innerHeight-1;
-	var contra;
-	var padd = 20*gameWidth/1087;
-	var finalImageWidth = Math.min(gameWidth/3, gameHeight/3) - padd*2;
-	var move = true;
-	var speed = 5;
-	var urlData = getJsonFromUrl();
-	var buttonTopL, buttonTopM, buttonTopR, buttonMiddleL, buttonMiddleR, buttonBottomL, buttonBottomM, buttonBottomR;
-	var buttonNextLevel, buttonPreviousLevel;
-	var toolbar;
-	var rectangleTL, rectangleTM, rectangleTR, rectangleML, rectangleMR, rectangleBL, rectangleBM, rectangleBR;
-	var bgColor = '0xffffff';
-	var tintColor = 'rgba(255,255,255, 0.3)';
-	var game;
-	var toolbarColor = '#ffffff';
-	var toolbarGrp;
-	var currentSchema = 0;
-	var toolbarButtonClicked = 0;
-	var textLevel;
-	
-	if(urlData["speed"] != undefined)
-	{
-		speed = urlData["speed"];
-	}
-	
 	function preload() {
+	
+		//game.load.script('filter', 'js/filters/ColorMatrixFilter.js');
 		game.load.image('arrow', 'arrow.png');
 		game.load.image('buttonPlus','set1/plus.png');
 		game.load.image('buttonMinus','set1/minus.png');
 		game.load.image('buttonAdd','set1/file_add.png');
 		game.load.image('buttonSearch','set1/file_search.png');
-		//game.load.image('buttonNoPic','set1/nopic.png');
 		
-		 game.load.spritesheet('buttonNoPic', 'set1/nopic.png', 128, 128)
+		game.load.spritesheet('buttonNoPic', 'set1/nopic.png', 128, 128)
 	}
 	
-	function changeSchema()
+	function applySchema(schemaID)
 	{
-		currentSchema+=1;
-		if(currentSchema == 3)
-		{
-			currentSchema = 0; //only 3 schemas available at the moment...
-		}
-		
-		switch(currentSchema)
+		switch(schemaID)
 		{
 			case 0:
 				game.stage.backgroundColor = '#000000';
@@ -170,35 +209,56 @@
 				break;
 		}
 
-		//redraw toolbar
-		drawRectangle(toolbar);
-				
-		//move toolbar buttons to the top
-		toolbarGrp.bringToTop();
-
+		var bmd = spriteToolbar.key;
+		paintBMDRect(bmd, toolbar.width, toolbar.height, toolbarColor);
+	}
+	
+	function changeSchema()
+	{
+		currentSchema+=1;
+		if(currentSchema == 3)
+		{
+			currentSchema = 0; //only 3 schemas available at the moment...
+		}
+		
+		applySchema(currentSchema);
+		
 		toolbarButtonClicked = 1;
 		move = 1;
 	}
 	
-	function drawRectangle(rect)
+	function clearBMDRect(bmd)
+	{
+		bmd.clear();
+	}
+	
+	function paintBMDRect(bmd, width, height, color)
+	{
+		bmd.clear();
+		bmd.ctx.beginPath();
+		bmd.ctx.rect(0, 0, width, height);
+		bmd.ctx.fillStyle = color;
+		bmd.ctx.fill();
+	}
+	
+	function drawRECT(rect, color, group)
 	{
 		var drawObj;
 		var width = rect.width;
 		var height = rect.height;
 		var bmd = game.add.bitmapData(width, height);
-		 
-		bmd.ctx.beginPath();
-		bmd.ctx.rect(0, 0, width, height);
-		bmd.ctx.fillStyle = toolbarColor;
-		bmd.ctx.fill();
+		paintBMDRect(bmd, width, height, color);
+		
 		drawObj = game.add.sprite(rect.x, rect.y, bmd);
 		drawObj.anchor.setTo(0.0, 0.0);
 
-		backgrndGrp.add(drawObj);
+		group.add(drawObj);
+		
+		return drawObj;
 	}
 
 	function create() {
-
+	
 		//	Enable p2 physics
 		game.physics.startSystem(Phaser.Physics.P2JS);
 		
@@ -214,11 +274,13 @@
 		
 		backgrndGrp = game.add.group();
 		toolbarGrp = game.add.group();
+		buttonGrp = game.add.group();
+		topGrp = game.add.group();
+		topMostGrp = game.add.group();
 		
-		drawRectangle(toolbar);
+		spriteToolbar = drawRECT(toolbar, toolbarColor, toolbarGrp);
 		
 		buttonPreviousLevel = game.add.button(toolbar.x + padd, toolbar.y + padd + game.height/3, 'buttonMinus', previousLevel, this, 1, 0, 0);
-		//buttonNextLevel.width = toolbar.width/3;
 		buttonPreviousLevel.scale.setTo(toolbar.width/3/buttonPreviousLevel.width, toolbar.width/3/buttonPreviousLevel.width);
 		
 		buttonNextLevel = game.add.button(toolbar.x + toolbar.width/3*2 - padd, toolbar.y + padd + game.height/3, 'buttonPlus', nextLevel, this, 1, 0, 0);
@@ -232,39 +294,55 @@
 		toolbarGrp.add(buttonPreviousLevel);
 		toolbarGrp.add(buttonChangeColorSchema);
 		
-		
-		buttonTopL = game.add.button(padd, padd, 								'buttonNoPic', browseForImage, this, 1, 0, 0);
+		buttonTopL = game.add.button(padd, padd, 'buttonNoPic', browseForImage, this, 1, 0, 0);
 		buttonTopL.name = "TL";
 		rectangleTL = new Phaser.Rectangle(padd, padd, finalImageWidth, finalImageWidth);
+		spriteTL = drawRECT(rectangleTL, tintColor, topGrp);
 
-		buttonTopM = game.add.button(gameWidth/2 - finalImageWidth/2, padd, 	'buttonNoPic', browseForImage, this, 1, 0, 0);
+		buttonTopM = game.add.button(gameWidth/2 - finalImageWidth/2, padd, 'buttonNoPic', browseForImage, this, 1, 0, 0);
 		buttonTopM.name = "TM";
 		rectangleTM = new Phaser.Rectangle(gameWidth/2 - finalImageWidth/2, padd, finalImageWidth, finalImageWidth);
+		spriteTM = drawRECT(rectangleTM, tintColor, topGrp);
 		
 		buttonTopR = game.add.button(gameWidth - finalImageWidth - padd, padd, 	'buttonNoPic', browseForImage, this, 1, 0, 0);
 		buttonTopR.name = "TR";
 		rectangleTR = new Phaser.Rectangle(gameWidth - finalImageWidth - padd, padd, finalImageWidth, finalImageWidth);
+		spriteTR = drawRECT(rectangleTR, tintColor, topGrp);
 		
-		buttonMiddleL = game.add.button(padd, gameHeight/2 - finalImageWidth/2, 								'buttonNoPic', browseForImage, this, 1, 0, 0);
+		buttonMiddleL = game.add.button(padd, gameHeight/2 - finalImageWidth/2, 'buttonNoPic', browseForImage, this, 1, 0, 0);
 		buttonMiddleL.name = "ML";
 		rectangleML = new Phaser.Rectangle(padd, gameHeight/2 - finalImageWidth/2, finalImageWidth, finalImageWidth);
+		spriteML = drawRECT(rectangleML, tintColor, topGrp);
 		
-		buttonMiddleR = game.add.button(gameWidth - finalImageWidth - padd, gameHeight/2 - finalImageWidth/2, 	'buttonNoPic', browseForImage, this, 1, 0, 0);
+		buttonMiddleR = game.add.button(gameWidth - finalImageWidth - padd, gameHeight/2 - finalImageWidth/2, 'buttonNoPic', browseForImage, this, 1, 0, 0);
 		buttonMiddleR.name = "MR";
 		rectangleMR = new Phaser.Rectangle(gameWidth - finalImageWidth - padd, gameHeight/2 - finalImageWidth/2, finalImageWidth, finalImageWidth);
+		spriteMR = drawRECT(rectangleMR, tintColor, topGrp);
 		
 		buttonBottomL = game.add.button(padd, gameHeight - finalImageWidth - padd, 'buttonNoPic', browseForImage, this, 1, 0, 0);
 		buttonBottomL.name = "BL";
 		rectangleBL= new Phaser.Rectangle(padd, gameHeight - finalImageWidth - padd, finalImageWidth, finalImageWidth);
+		spriteBL = drawRECT(rectangleBL, tintColor, topGrp);
 		
 		buttonBottomM = game.add.button(gameWidth/2 - finalImageWidth/2, gameHeight - finalImageWidth - padd, 'buttonNoPic', browseForImage, this, 1, 0, 0);
 		buttonBottomM.name = "BM";
 		rectangleBM= new Phaser.Rectangle(gameWidth/2 - finalImageWidth/2, gameHeight - finalImageWidth - padd, finalImageWidth, finalImageWidth);
+		spriteBM = drawRECT(rectangleBM, tintColor, topGrp);
 		
 		buttonBottomR = game.add.button(gameWidth - finalImageWidth - padd, gameHeight - finalImageWidth - padd, 'buttonNoPic', browseForImage, this, 1, 0, 0);
 		buttonBottomR.name = "BR";
 		rectangleBR= new Phaser.Rectangle(gameWidth - finalImageWidth - padd, gameHeight - finalImageWidth - padd, finalImageWidth, finalImageWidth);
+		spriteBR = drawRECT(rectangleBR, tintColor, topGrp);
 		
+		buttonGrp.add(buttonTopL);
+		buttonGrp.add(buttonTopM);
+		buttonGrp.add(buttonTopR);
+		buttonGrp.add(buttonMiddleL);
+		buttonGrp.add(buttonMiddleR);
+		buttonGrp.add(buttonBottomL);
+		buttonGrp.add(buttonBottomM);
+		buttonGrp.add(buttonBottomR);
+				
 		ResizeButton(buttonTopL, finalImageWidth);
 		ResizeButton(buttonTopM, finalImageWidth);
 		ResizeButton(buttonTopR, finalImageWidth);
@@ -276,28 +354,26 @@
 		ResizeButton(buttonBottomM, finalImageWidth);
 		ResizeButton(buttonBottomL, finalImageWidth);
 		
-		//buttonBottomL.tint = 0xffffff;
+		arrowSprite = game.add.sprite(gameWidth/2,gameHeight/2, 'arrow');
+		topGrp.add(arrowSprite);
 		
-		contra = game.add.sprite(gameWidth/2,gameHeight/2, 'arrow');
 		//Enable the physics body on this sprite and turn off the visual debugger
-		game.physics.p2.enable(contra, true);
+		game.physics.p2.enable(arrowSprite, true);
 					
 		//100% W is 1152px
 		var minProportion = Math.min(gameWidth, gameHeight);
 		var arrowProportion = minProportion / 750;
 		
 		//	Clear the shapes and load the 'arrow' polygon from the physicsData JSON file in the cache
-		contra.body.clearShapes();
-		contra.scale.setTo(arrowProportion, arrowProportion);
-		
-		//add arrow to a group
-		//groupArrow = game.add.group();
-		//groupArrow.add(contra);
+		arrowSprite.body.clearShapes();
+		arrowSprite.scale.setTo(arrowProportion, arrowProportion);
 		
 		//Level text
-		var textL = "Level "+speed;
-		var style = { font: "Arial", fontSize: 60*toolbarSz/288, fill: "#ff0044", align: "center" };
+		var textL = "Level " + speed;
+		var style = { font: "Arial", fontSize: 60*toolbarSz/288, fill: "#ff0044", align: "center" }; //BP: TODO: Add text color to the theme!
 		textLevel = game.add.text(toolbar.x + padd, toolbar.y + padd, textL, style);
+		toolbarGrp.add(textLevel);
+		//applySchema(currentSchema);
 	}
 
 	function nextLevel()
@@ -311,6 +387,9 @@
 			speed+=5;
 		}
 		
+		//Update Level text
+		textLevel.setText( "Level "+speed);
+
 		toolbarButtonClicked = 1;
 		move = 1;
 	}
@@ -329,12 +408,16 @@
 			}
 		}
 		
+		//Update Level text
+		textLevel.setText( "Level "+speed);
+
 		toolbarButtonClicked = 1;
 		move = 1;
 	}
 
 	function ResizeButton(button, width)
 	{
+		button.scale.setTo(1.0, 1.0);
 		//100% of images should be finalImageWidth
 		//calculate maximum image (width or height)
 		var maxImg = Math.max(button.width, button.height);
@@ -349,35 +432,73 @@
 		positionToPlaceImage = button.name;
 		document.getElementById("fileChooser").click();
 		
-		
 		// this is how you load an image dinamically and change the sprite
 		//this.game.load.image('profilepic','http://www.w3school.com.cn/i/ct_html5_canvas_image.gif');
-		//contra.loadTexture('profilepic', 0);
+		//arrowSprite.loadTexture('profilepic', 0);
 	}
 
 	function onClick()
-	{	
-		if (toolbarButtonClicked == 1)
+	{
+		if(fullScreen)
 		{
-			toolbarButtonClicked = 0;
+			ResizeButton(fullScreenBtn, finalImageWidth);
+			fullScreenBtn.x = fullScreenBtnX;
+			fullScreenBtn.y = fullScreenBtnY;
+			move = 1;
+			topMostGrp.remove(fullScreenBtn);
+			buttonGrp.add(fullScreenBtn);
+			//topGrp.bringToTop();
+			
+			fullScreen = 0;
+			fullScreenBtn = null;
+			fullScreenBtnX = 0;
+			fullScreenBtnY = 0;
 		}
 		else
 		{
-			move = !move;
-			if (move == false)
+			if (toolbarButtonClicked == 1)
 			{
-				contra.body.rotateRight(0);
-				
-				//TODO: if we stopped, we should show whatever image is selected!
-				//check the frame names of the button that we are hitting!
-				
-				button = getSelectedButton();
-				console.log('button name: ', button.name);
-				
-				//
-				//if button.key != buttonNoPic
-				//
-				
+				toolbarButtonClicked = 0;
+			}
+			else
+			{
+				move = !move;
+				if (move == false)
+				{
+					arrowSprite.body.rotateRight(0);
+					
+					//TODO: if we stopped, we should show whatever image is selected!
+					//check the frame names of the button that we are hitting!
+					
+					button = getSelectedButton();
+					console.log('button name: ', button.name);
+
+					
+					if (button.key != "buttonNoPic")
+					{
+						//get current button scale:
+						var scale = button.scale.x;
+						//calculate the button original Width/height
+						var originalWidth = button.width/scale;
+						var originalHeight = button.height/scale;
+						
+						//Now calculate what should be the next width/height
+						var newProportionW = gameWidth/originalWidth;
+						var newProportionH = gameHeight/originalHeight;
+						
+						fullScreenBtn = button;
+						fullScreenBtnX = button.x;
+						fullScreenBtnY = button.y;
+						
+						game.add.tween(button.scale).to( { x: newProportionW, y: newProportionH }, 2000, Phaser.Easing.Linear.None, true);
+						game.add.tween(button).to( { x: 0, y: 0 }, 2000, Phaser.Easing.Linear.None, true);
+						
+						//change button to be topmost!
+						buttonGrp.remove(button);
+						topMostGrp.add(button);
+						fullScreen = 1;
+					}
+				}
 			}
 		}
 	}
@@ -385,7 +506,7 @@
 	function getSelectedButton()
 	{
 		var button;
-		var angle = contra.body.angle;
+		var angle = arrowSprite.body.angle;
 		if(angle > -22.5 && angle <= 22.5)
 		{
 			button = buttonMiddleR;
@@ -426,46 +547,52 @@
 
 		if (move)
 		{
-			contra.body.rotateRight(speed);
+			arrowSprite.body.rotateRight(speed);
 		}
-
-		button = getSelectedButton();
-		//console.log('selectable button name: ', button.name);
-		//console.log('toolbar witdth sz: ', toolbarSz);
 	}
 
 	function render() {
+				
+		//var button = getSelectedButton();
+		//if button.key != buttonNoPic
+		//
 		
-		//game.debug.geom(toolbar,'rgba(255,255,255, 0.9)');
+		var button = getSelectedButton();
 		
-		button = getSelectedButton();
-		if (button.name == "TL")	{
-			game.debug.spriteBounds(buttonTopL,tintColor);
-		} else if(button.name == "TM") {
-			game.debug.geom(rectangleTM,tintColor);
-		} else if(button.name == "TR") {
-			game.debug.geom(rectangleTR,tintColor);
-		} else if(button.name == "ML") {
-			game.debug.geom(rectangleML,tintColor);
-		} else if(button.name == "MR") {
-			game.debug.geom(rectangleMR,tintColor);
-		} else if(button.name == "BL") {
-			game.debug.geom(rectangleBL,tintColor);
-		} else if(button.name == "BM") {
-			game.debug.geom(rectangleBM,tintColor);
-		} else if(button.name == "BR") {
-			game.debug.geom(rectangleBR,tintColor);
+		clearBMDRect(spriteTL.key);
+		clearBMDRect(spriteTM.key);
+		clearBMDRect(spriteTR.key);
+		clearBMDRect(spriteML.key);
+		clearBMDRect(spriteMR.key);
+		clearBMDRect(spriteBL.key);
+		clearBMDRect(spriteBM.key);
+		clearBMDRect(spriteBR.key);
+
+		if (button.key != "buttonNoPic")
+		{
+			if (button.name == "TL")	{
+				//game.debug.spriteBounds(buttonTopL,tintColor);
+				paintBMDRect(spriteTL.key, rectangleTL.width, rectangleTL.height, tintColor);
+			} else if(button.name == "TM") {
+				paintBMDRect(spriteTM.key, rectangleTM.width, rectangleTM.height, tintColor);
+			} else if(button.name == "TR") {
+				paintBMDRect(spriteTR.key, rectangleTR.width, rectangleTR.height, tintColor);
+			} else if(button.name == "ML") {
+				paintBMDRect(spriteML.key, rectangleML.width, rectangleML.height, tintColor);
+			} else if(button.name == "MR") {
+				paintBMDRect(spriteMR.key, rectangleMR.width, rectangleMR.height, tintColor);
+			} else if(button.name == "BL") {
+				paintBMDRect(spriteBL.key, rectangleBL.width, rectangleBL.height, tintColor);
+			} else if(button.name == "BM") {
+				paintBMDRect(spriteBM.key, rectangleBL.width, rectangleBM.height, tintColor);
+			} else if(button.name == "BR") {
+				paintBMDRect(spriteBR.key, rectangleBR.width, rectangleBR.height, tintColor);
+			}
 		}
-
-		//Update Level text
-		textLevel.setText( "Level "+speed);
-
-		//Bring the Arrow to Top
-		//game.world.bringToTop(groupArrow);
 	}
 	
     window.onload = function() {
-		game = new Phaser.Game(gameWidth+toolbarSz, gameHeight, Phaser.CANVAS, 'VirtualDialScan', { preload: preload, create: create, update: update, render: render });
+		game = new Phaser.Game(gameWidth+toolbarSz, gameHeight, Phaser.AUTO, 'VirtualDialScan', { preload: preload, create: create, update: update, render: render });
 		//game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     };
 
