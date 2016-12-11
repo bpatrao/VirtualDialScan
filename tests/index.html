@@ -30,10 +30,93 @@
 	
     </head>
     <body style="padding:0px; margin:0px;">
-	<input type="file" id="fileChooser" onchange="handleFiles(this.files)" style="display:none" />
+	<div id="vds-add-image-modal-frame" style="display: none; position: fixed; z-index: 1; padding-top: 50px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgb(0,0,0); background-color: rgba(0,0,0,0.3);">
+		<div id="vds-add-image-modal-window" style="background: #ffffff; bottom: 0; height: 60%;left: 0;margin: auto;position: absolute;top: 0;right: 0;width: 60%;border-radius:4px; border: 1px black; padding: 10px;">
+			<h2 style="padding: 5px 5px; font-weight: bold;">Add image/video/sound</h2>
+			<br/>
+			<h3>Browse (local): <input type="file" id="fileChooser" onchange="handleFiles(this.files); document.getElementById('vds-add-image-modal-frame').style.display='none';"/></h3>
+			<br/>
+			<h3>Search Pixabay (<a href="https://pixabay.com">https://pixabay.com</a>):</h3>
+			<br/>
+			Search String: <input type="text" id="search_str_pixabay"></input><input type="button" onclick="getResults();" label="Search"></button>
+			<br/>
+			<div id="results" style="height: 80%"></div>
+		</div>
+		
+	</div>
+<!-- 	<input type="file" id="fileChooser" onchange="handleFiles(this.files)" style="display:none" /> -->
     <script type="text/javascript">
 
+	function selectImageForSpot(strUrl)
+	{		
+		try {
+			game.cache.removeImage(positionToPlaceImage+'image');
+		} catch(e) {};
+		
+		this.game.load.image(positionToPlaceImage+'image', strUrl);
+		this.game.load.onLoadComplete.addOnce(function() { 
+			onLoaded(); 
+		})
+		this.game.load.crossOrigin = 'anonymous';
+		this.game.load.start();
+	}
+
+	function onLoaded()
+	{
+		if(positionToPlaceImage == "TL") {
+			buttonTopL.loadTexture(positionToPlaceImage+'image', 0);
+			ResizeButton(buttonTopL, finalImageWidth);
+		} else if(positionToPlaceImage == "TM") {
+			buttonTopM.loadTexture(positionToPlaceImage+'image', 0);
+			ResizeButton(buttonTopM, finalImageWidth);
+		} else if(positionToPlaceImage == "TR") {
+			buttonTopR.loadTexture(positionToPlaceImage+'image', 0);
+			ResizeButton(buttonTopR, finalImageWidth);
+		} else if(positionToPlaceImage == "ML") {
+			buttonMiddleL.loadTexture(positionToPlaceImage+'image', 0);
+			ResizeButton(buttonMiddleL, finalImageWidth);
+		} else if(positionToPlaceImage == "MR") {
+			buttonMiddleR.loadTexture(positionToPlaceImage+'image', 0);
+			ResizeButton(buttonMiddleR, finalImageWidth);
+		} else if(positionToPlaceImage == "BL") {
+			buttonBottomL.loadTexture(positionToPlaceImage+'image', 0);
+			ResizeButton(buttonBottomL, finalImageWidth);
+		} else if(positionToPlaceImage == "BM") {
+			buttonBottomM.loadTexture(positionToPlaceImage+'image', 0);
+			ResizeButton(buttonBottomM, finalImageWidth);
+		} else if(positionToPlaceImage == "BR") {
+			buttonBottomR.loadTexture(positionToPlaceImage+'image', 0);
+			ResizeButton(buttonBottomR, finalImageWidth);						
+		}
+		
+		document.getElementById("vds-add-image-modal-frame").style.display="none";
+	}
 	
+	function reqListener () {
+		var searchResults = JSON.parse(this.responseText);
+		if(searchResults.hits.length > 0)
+		{
+			var divResults = document.getElementById("results");
+			divResults.innerHTML = "";
+			for(var i = 0; (i < searchResults.hits.length && i < 10); i++)
+			{
+				divResults.innerHTML += "<a href='#' onclick='selectImageForSpot(\""+searchResults.hits[i].webformatURL+"\");'><img src='" + searchResults.hits[i].previewURL + "'/></a>";
+			}
+		}
+	}
+	
+	function getResults()
+	{
+		//https://pixabay.com/api/?key=3976912-9d9940a8368ab5e4c9ece4806&q=yellow+flowers&image_type=photo
+		//type: vector, photo, illustration
+		var strQuery = document.getElementById("search_str_pixabay").value;
+		var strUrl = "https://pixabay.com/api/?key=3976912-9d9940a8368ab5e4c9ece4806&q="+strQuery+"&image_type=vector";
+		
+		var oReq = new XMLHttpRequest();
+		oReq.addEventListener("load", reqListener);
+		oReq.open("GET", strUrl);
+		oReq.send();
+	}
 	
 	//Phaser Game Variable
 	var game;
@@ -288,7 +371,6 @@
 		
 		buttonChangeColorSchema = game.add.button(toolbar.x + padd, toolbar.y + padd*2 + buttonNextLevel.height+ game.height*2/3, 'buttonSearch', changeSchema, this, 1, 0, 0);
 		buttonChangeColorSchema.scale.setTo(toolbar.width/3/buttonChangeColorSchema.width, toolbar.width/3/buttonChangeColorSchema.width);
-		buttonChangeColorSchema.input.priorityID = 1;
 		
 		toolbarGrp.add(buttonNextLevel);
 		toolbarGrp.add(buttonPreviousLevel);
@@ -430,7 +512,8 @@
 	{
 		console.log('you clicked', button.name);
 		positionToPlaceImage = button.name;
-		document.getElementById("fileChooser").click();
+		//document.getElementById("fileChooser").click();
+		document.getElementById("vds-add-image-modal-frame").style.display="block";
 		
 		// this is how you load an image dinamically and change the sprite
 		//this.game.load.image('profilepic','http://www.w3school.com.cn/i/ct_html5_canvas_image.gif');
