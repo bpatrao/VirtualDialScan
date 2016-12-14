@@ -30,27 +30,31 @@
 	
     </head>
     <body style="padding:0px; margin:0px;">
-	<div id="vds-add-image-modal-frame" style="display: none; position: fixed; z-index: 1; padding-top: 50px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgb(0,0,0); background-color: rgba(0,0,0,0.5);">
-		<div id="vds-add-image-modal-window" style="background: #ffffff; bottom: 0; height: 60%;left: 0;margin: auto;position: absolute;top: 0;right: 0;width: 60%;border-radius:15px; border: 1px black; padding: 10px;">
-			<h2 style="padding: 5px 5px; font-weight: bold; align: center; text-align: center;">Add image/video/sound</h2>
-			<ul>
-				<li>Browse (local): <input type="file" id="fileChooser" onchange="handleFiles(this.files); document.getElementById('vds-add-image-modal-frame').style.display='none';"/></li>
-				<li>Search Pixabay (<a href="https://pixabay.com">https://pixabay.com</a>)
-					<ul>
-						<li>Type:
-							<select id="search_type_pixabay" name="search_type_pixabay">
-								<option value="">All</option>  
-								<option value="photo">Photo</option>
-								<option value="illustration">Illustration</option>
-								<option value="vector">Vector Graphics</option>
-							</select>
-						</li>
-						<li>Text: <input type="text" id="search_str_pixabay"></input>&nbsp;<input type="button" onclick="getResults();" value="Search"></button></li>
-						
-					</ul>
-				</li>
-			</ul>
-			<div id="results" style="border-radius:10px; height: 70%; overflow: auto; border: 1px solid black;"></div>
+	<div id="vds-add-image-modal-frame" style="display: none; position: fixed; z-index: 1; padding: 0px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgb(0,0,0); background-color: rgba(0,0,0,0.5);">
+		<div id="vds-add-image-modal-window" style="background: #efefee; bottom: 0; height: 90%;left: 0;margin: auto;position: absolute;top: 0;right: 0;width: 90%;border-radius:15px; border: 2px solid black; padding: 10px;">
+			<div style="height: 220px; overflow: auto;">
+				<h2 style="padding: 5px 5px; font-weight: bold; align: center; text-align: center;">Add image...</h2>
+				<ul>
+					<li>Browse (local): <input type="file" id="fileChooser" onchange="handleFiles(this.files); document.getElementById('vds-add-image-modal-frame').style.display='none';"/></li>
+					<li>Search Online Images<br/><a href="https://pixabay.com"><img src="pixabay.png" width=60/></a>
+						<ul>
+							<li>Type:
+								<select id="search_type_pixabay" name="search_type_pixabay">
+									<option value="">All</option>  
+									<option value="photo">Photo</option>
+									<option value="illustration">Illustration</option>
+									<option value="vector">Vector Graphics</option>
+								</select>
+							</li>
+							<li>Text: <input type="text" id="search_str_pixabay"></input>&nbsp;<input type="button" onclick="getResults();" value="Search"></button></li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+
+			<div id="results" style="border-radius:10px; position: absolute; top: 220px; bottom: 40px; left:15px; right:15px; overflow: auto; border: 1px solid black;"></div>
+			<div style="position:absolute; bottom:1px; right: 15px; left:15px; height: 35px; text-align: right; padding: 0px;"><input type="button" onclick="document.getElementById('vds-add-image-modal-frame').style.display='none';" value="Cancel"></div>			
+
 		</div>
 	</div>
 <!-- 	<input type="file" id="fileChooser" onchange="handleFiles(this.files)" style="display:none" /> -->
