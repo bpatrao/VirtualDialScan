@@ -500,12 +500,15 @@
 		spriteBR.width = finalImageWidth;
 		spriteBR.height = finalImageWidth;
 
+		arrowSprite.body.x = gameWidth/2;
 		arrowSprite.x = gameWidth/2;
+		arrowSprite.body.y = gameHeight/2;
 		arrowSprite.y = gameHeight/2;
 		var minProportion = Math.min(gameWidth, gameHeight);
 		var arrowProportion = minProportion / 2300;
 		arrowSprite.scale.setTo(arrowProportion, arrowProportion);
-	
+		
+
 		spriteToolbar.x = gameWidth;
 		spriteToolbar.height = gameHeight;
 		spriteToolbar.y = 0;
