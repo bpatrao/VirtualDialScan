@@ -28,27 +28,12 @@
         <script src="//cdn.jsdelivr.net/phaser/2.5.0/phaser.min.js"></script>
 		
 		<style>
-			body{
-				margin:0px;
-				padding:0px;
-			}
-			#turn{
-				width:100%;
-				height:100%;
-				position:fixed;
-				top:0px;
-				left:0px;
-				background-color:white;
-				background-image:url('play_in_landscape.png');
-				background-repeat:no-repeat;
-				background-position: center center;
-				display:none;
-			}
+			html, body, #game { height: 100%; }
+			body{margin: 0; padding: 0;}
 		</style>
 	
     </head>
     <body style="padding:0px; margin:0px;">
-	<!--<div id="turn"></div>-->
 	<div id="vds-add-image-modal-frame" style="display: none; position: fixed; z-index: 1; padding: 0px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
 		<div id="vds-add-image-modal-window" style="background: #efefee; bottom: 0; height: 90%;left: 0;margin: auto;position: absolute;top: 0;right: 0;width: 95%;border-radius:15px; border: 2px solid black; padding: 10px;">
 			<div style="height: 150px; overflow: auto;">
@@ -162,10 +147,10 @@
 	var game;
 	
 	//////// Sizes / Widths / Heights
-	var toolbarSz = window.innerWidth*.15;
+	var toolbarSz = 100; //window.innerWidth*.15;
 	var gameWidth = window.innerWidth-1-toolbarSz;
 	var gameHeight = window.innerHeight-1;
-	var padd = 20*gameWidth/1087;
+	var padd = 20; //*gameWidth/1087;
 	var finalImageWidth = Math.min(gameWidth/3, gameHeight/3) - padd*2;
 	
 	//////// Arrow variables:
@@ -174,7 +159,7 @@
 	//Arrow movement (yes/no)
 	var move = true;
 	//Arrow speed
-	var speed = 5;
+	var speed = 1;
 	
 	//////// Selectable areas variables:
 	//Buttons for the selectable areas
@@ -202,7 +187,7 @@
 	//Text containing current level
 	var textLevel;
 	//Toolbar background color
-	var toolbarColor = '#ffffff';
+	var toolbarColor = '#eeeeee';
 	
 	////////// Other Variables:
 	//Color Scheme
@@ -314,7 +299,7 @@
 		switch(schemaID)
 		{
 			case 0:
-				game.stage.backgroundColor = '#000000';
+				game.stage.backgroundColor = '#222222';
 				tintColor = 'rgba(255,255,255, 0.3)';
 				toolbarColor = '#ffffff'
 				//change buttons
@@ -340,7 +325,7 @@
 
 				break;
 			case 1:
-				game.stage.backgroundColor = '#ffffff';
+				game.stage.backgroundColor = '#eeeeee';
 				tintColor = 'rgba(122,123,122, 0.3)';
 				toolbarColor = '#333333'
 				//change buttons
@@ -437,21 +422,109 @@
 		}
 	}
 */
-	function create() {
-	
-//game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-		game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
-		game.scale.setShowAll();
-		window.addEventListener('resize', 
-			function () 
-			{  this.game.scale.refresh();
-		});
+	function resize() {
+		
 		this.game.scale.refresh();
 
-		//game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-		//game.scale.forceOrientation(true, false);
-		//game.scale.enterIncorrectOrientation.add(handleIncorrect);
-        //game.scale.leaveIncorrectOrientation.add(handleCorrect);
+		//re-calculate the position of elements:
+		//toolbarSz = window.innerWidth*.15;
+
+		game.scale.setGameSize(window.innerWidth, window.innerHeight);
+
+		gameWidth = window.innerWidth-1-toolbarSz;
+		gameHeight = window.innerHeight-1;
+		//padd = 20*gameWidth/1087;
+		finalImageWidth = Math.min(gameWidth/3, gameHeight/3) - padd*2;
+
+		buttonTopL.x = padd;
+		buttonTopL.y = padd;
+		ResizeButton(buttonTopL, finalImageWidth);
+		spriteTL.x = buttonTopL.x;
+		spriteTL.y = buttonTopL.y;
+		spriteTL.width = finalImageWidth;
+		spriteTL.height = finalImageWidth;
+
+		buttonTopM.x = gameWidth/2 - finalImageWidth/2;
+		buttonTopM.y = padd;
+		ResizeButton(buttonTopM, finalImageWidth);
+		spriteTM.x = buttonTopM.x;
+		spriteTM.y = buttonTopM.y;
+		spriteTM.width = finalImageWidth;
+		spriteTM.height = finalImageWidth;
+
+		buttonTopR.x = gameWidth - finalImageWidth - padd;
+		buttonTopR.y = padd;
+		ResizeButton(buttonTopR, finalImageWidth);
+		spriteTR.x = buttonTopR.x;
+		spriteTR.y = buttonTopR.y;
+		spriteTR.width = finalImageWidth;
+		spriteTR.height = finalImageWidth;
+
+		buttonMiddleL.x = padd;
+		buttonMiddleL.y = gameHeight/2 - finalImageWidth/2;
+		ResizeButton(buttonMiddleL, finalImageWidth);
+		spriteML.x = buttonMiddleL.x;
+		spriteML.y = buttonMiddleL.y;
+		spriteML.width = finalImageWidth;
+		spriteML.height = finalImageWidth;
+
+		buttonMiddleR.x = gameWidth - finalImageWidth - padd;
+		buttonMiddleR.y = gameHeight/2 - finalImageWidth/2;
+		ResizeButton(buttonMiddleR, finalImageWidth);
+		spriteMR.x = buttonMiddleR.x;
+		spriteMR.y = buttonMiddleR.y;
+		spriteMR.width = finalImageWidth;
+		spriteMR.height = finalImageWidth;
+
+		buttonBottomL.x = padd;
+		buttonBottomL.y = gameHeight - finalImageWidth - padd;
+		ResizeButton(buttonBottomL, finalImageWidth);
+		spriteBL.x = buttonBottomL.x;
+		spriteBL.y = buttonBottomL.y;
+		spriteBL.width = finalImageWidth;
+		spriteBL.height = finalImageWidth;
+
+		buttonBottomM.x = gameWidth/2 - finalImageWidth/2;
+		buttonBottomM.y = gameHeight - finalImageWidth - padd;
+		ResizeButton(buttonBottomM, finalImageWidth);
+		spriteBM.x = buttonBottomM.x;
+		spriteBM.y = buttonBottomM.y;
+		spriteBM.width = finalImageWidth;
+		spriteBM.height = finalImageWidth;
+
+		buttonBottomR.x = gameWidth - finalImageWidth - padd;
+		buttonBottomR.y = gameHeight - finalImageWidth - padd;
+		ResizeButton(buttonBottomR, finalImageWidth);
+		spriteBR.x = buttonBottomR.x;
+		spriteBR.y = buttonBottomR.y;
+		spriteBR.width = finalImageWidth;
+		spriteBR.height = finalImageWidth;
+
+		arrowSprite.x = gameWidth/2;
+		arrowSprite.y = gameHeight/2;
+		var minProportion = Math.min(gameWidth, gameHeight);
+		var arrowProportion = minProportion / 2300;
+		arrowSprite.scale.setTo(arrowProportion, arrowProportion);
+	
+		spriteToolbar.x = gameWidth;
+		spriteToolbar.height = gameHeight;
+		spriteToolbar.y = 0;
+
+		buttonPreviousLevel.x = gameWidth + padd;
+		buttonNextLevel.x = gameWidth + toolbarSz - padd - toolbarSz/4;
+
+		textLevel.x = gameWidth + padd/2;
+		textLevel.y = padd;
+		
+		buttonChangeColorSchema.x = gameWidth + padd;
+		buttonChangeColorSchema.y = padd*2 + buttonNextLevel.height+ game.height*2/3;
+	}
+
+	function create() {
+	
+		game.scale.scaleMode = Phaser.ScaleManager.USER_SCALE;
+		window.addEventListener('resize', resize);
+		this.game.scale.refresh();
 		
 		//	Enable p2 physics
 		game.physics.startSystem(Phaser.Physics.P2JS);
@@ -461,7 +534,19 @@
 		
 		key2 = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
 		key2.onDown.add(onClick, this);
+
+		var key3 = game.input.keyboard.addKey(Phaser.Keyboard.PLUS);
+		key3.onDown.add(nextLevel, this);
+
+		var key32 = game.input.keyboard.addKey(Phaser.Keyboard.J);
+		key32.onDown.add(nextLevel, this);
 		
+		var key4 = game.input.keyboard.addKey(Phaser.Keyboard.MINUS);
+		key4.onDown.add(previousLevel, this);
+
+		var key42 = game.input.keyboard.addKey(Phaser.Keyboard.K);
+		key42.onDown.add(previousLevel, this);
+
 		game.input.onTap.add(onClick, this);
 		game.input.priorityID = 1;
 		toolbar = new Phaser.Rectangle(gameWidth, 0, toolbarSz, gameHeight);
@@ -474,11 +559,11 @@
 		
 		spriteToolbar = drawRECT(toolbar, toolbarColor, toolbarGrp);
 		
-		buttonPreviousLevel = game.add.button(toolbar.x + padd, toolbar.y + padd + game.height/3, 'buttonMinus', previousLevel, this, 1, 0, 0);
-		buttonPreviousLevel.scale.setTo(toolbar.width/3/buttonPreviousLevel.width, toolbar.width/3/buttonPreviousLevel.width);
+		buttonPreviousLevel = game.add.button(gameWidth + padd, toolbar.y + padd + 50, 'buttonMinus', previousLevel, this, 1, 0, 0);
+		buttonPreviousLevel.scale.setTo(toolbarSz/4/buttonPreviousLevel.width, toolbarSz/4/buttonPreviousLevel.width);
 		
-		buttonNextLevel = game.add.button(toolbar.x + toolbar.width/3*2 - padd, toolbar.y + padd + game.height/3, 'buttonPlus', nextLevel, this, 1, 0, 0);
-		buttonNextLevel.scale.setTo(toolbar.width/3/buttonNextLevel.width, toolbar.width/3/buttonNextLevel.width);
+		buttonNextLevel = game.add.button(gameWidth + toolbarSz - padd - toolbarSz/4, toolbar.y + padd + 50, 'buttonPlus', nextLevel, this, 1, 0, 0);
+		buttonNextLevel.scale.setTo(toolbarSz/4/buttonNextLevel.width, toolbarSz/4/buttonNextLevel.width);
 		
 		buttonChangeColorSchema = game.add.button(toolbar.x + padd, toolbar.y + padd*2 + buttonNextLevel.height+ game.height*2/3, 'buttonSearch', changeSchema, this, 1, 0, 0);
 		buttonChangeColorSchema.scale.setTo(toolbar.width/3/buttonChangeColorSchema.width, toolbar.width/3/buttonChangeColorSchema.width);
@@ -562,9 +647,11 @@
 		arrowSprite.scale.setTo(arrowProportion, arrowProportion);
 		
 		//Level text
-		var textL = "Level " + speed;
-		var style = { font: "Arial", fontSize: 60*toolbarSz/288, fill: "#ff0044", align: "center" }; //BP: TODO: Add text color to the theme!
-		textLevel = game.add.text(toolbar.x + padd, toolbar.y + padd, textL, style);
+		var level = (speed < 5) ? speed : speed/5 + 4;
+		
+		var textL = "Level " + level;
+		var style = { font: "Arial", fontSize: 60*toolbarSz/288, fill: "#999999s", align: "center" }; //BP: TODO: Add text color to the theme!
+		textLevel = game.add.text(toolbar.x + padd/2, toolbar.y + padd, textL, style);
 		toolbarGrp.add(textLevel);
 		//applySchema(currentSchema);
 	}
@@ -581,7 +668,8 @@
 		}
 		
 		//Update Level text
-		textLevel.setText( "Level "+speed);
+		var level = (speed < 5) ? speed : speed/5 + 4;
+		textLevel.setText( "Level "+level);
 
 		toolbarButtonClicked = 1;
 		move = 1;
@@ -602,8 +690,8 @@
 		}
 		
 		//Update Level text
-		textLevel.setText( "Level "+speed);
-
+		var level = (speed < 5) ? speed : speed/5 + 4;
+		textLevel.setText( "Level "+level);
 		toolbarButtonClicked = 1;
 		move = 1;
 	}
@@ -762,7 +850,7 @@
 		clearBMDRect(spriteBM.key);
 		clearBMDRect(spriteBR.key);
 
-		if ((button.key != "buttonNoPicW") && (button.key != "buttonNoPicB"))
+		//if ((button.key != "buttonNoPicW") && (button.key != "buttonNoPicB"))
 		{
 			if (button.name == "TL")	{
 				paintBMDRect(spriteTL.key, rectangleTL.width, rectangleTL.height, tintColor);
@@ -785,8 +873,7 @@
 	}
 	
     window.onload = function() {
-		game = new Phaser.Game(gameWidth+toolbarSz, gameHeight, Phaser.AUTO, 'VirtualDialScan', { preload: preload, create: create, update: update, render: render });
-		
+		game = new Phaser.Game("100", "100", /*gameWidth+toolbarSz, gameHeight, */ Phaser.AUTO, 'VirtualDialScan', { preload: preload, create: create, update: update, render: render });
     };
 
     </script>
