@@ -40,6 +40,7 @@
 				<h2 style="margin:0px; padding:0px; font-weight: bold; align: center; text-align: center;">Add image...</h2>
 				<ul style="margin:0px; padding:0px; padding-left:10px; margin-left: 15px;">
 					<li>Browse: <input type="file" id="fileChooser" onchange="handleFiles(this.files); document.getElementById('vds-add-image-modal-frame').style.display='none';"/></li>
+					<!-- <li>(Optional) Description: <input type="text" style="width:100px;" id="image_caption"></input>&nbsp;<input type="button" onclick="document.getElementById('image_caption').value = '';" value="Clear Description"></button></li>-->
 					<li>Search Online:
 						<ul>
 							<li>Type:
@@ -72,7 +73,7 @@
     <script type="text/javascript">
 
 	function selectImageForSpot(strUrl)
-	{		
+	{
 		try {
 			game.cache.removeImage(positionToPlaceImage+'image');
 		} catch(e) {};
@@ -81,6 +82,7 @@
 		this.game.load.onLoadComplete.addOnce(function() { 
 			onLoaded(); 
 		})
+
 		this.game.load.crossOrigin = 'anonymous';
 		this.game.load.start();
 	}
@@ -223,7 +225,6 @@
 	
 	function handleFiles(files)
 	{
-	
 		// Loop through the FileList and render image files as thumbnails.
 		for (var i = 0, f; f = files[i]; i++) {
 			selectedImageName = f.name;
@@ -236,6 +237,7 @@
 				return function(e) 
 				{
 					dataURI = e.target.result;
+
 					var data = new Image();
 					data.src = dataURI;
 					try {
@@ -270,7 +272,7 @@
 						ResizeButton(buttonBottomR, finalImageWidth);						
 					}
 					
-					topGrp.bringToTop();
+					//topGrp.bringToTop();
 				};
 			})(f);
 
@@ -289,6 +291,9 @@
 		game.load.image('buttonMinus','set1/minus.png');
 
 		game.load.image('buttonSearch','set1/file_search.png');
+
+		game.load.image('buttonColor', 'set1/color.png');
+		game.load.image('buttonSave', 'set1/save.png');
 		
 		game.load.spritesheet('buttonNoPicW', 'set1/nopicW.png', 615, 615);
 		game.load.spritesheet('buttonNoPicB', 'set1/nopicB.png', 614, 614);
@@ -302,6 +307,8 @@
 				game.stage.backgroundColor = '#222222';
 				tintColor = 'rgba(255,255,255, 0.3)';
 				toolbarColor = '#ffffff'
+		
+				textLevel.style.fill = '#444444';
 				//change buttons
 				arrowSprite.loadTexture('arrowW');
 				
@@ -328,6 +335,9 @@
 				game.stage.backgroundColor = '#eeeeee';
 				tintColor = 'rgba(122,123,122, 0.3)';
 				toolbarColor = '#333333'
+				
+				textLevel.style.fill = '#eeeeee';
+
 				//change buttons
 				arrowSprite.loadTexture('arrowB');
 
@@ -520,7 +530,112 @@
 		textLevel.y = padd;
 		
 		buttonChangeColorSchema.x = gameWidth + padd;
-		buttonChangeColorSchema.y = padd*2 + buttonNextLevel.height+ game.height*2/3;
+		buttonChangeColorSchema.y = gameHeight - padd*2 - buttonNextLevel.height - 200;
+
+		buttonSave.x = gameWidth + toolbarSz - padd - toolbarSz/4;
+		buttonSave.y = gameHeight - padd*2 - buttonNextLevel.height - 200;
+	}
+
+	function saveData() {
+
+		var savename = window.prompt("Name of Saved Data", "name");
+		//Get data to save:
+		//Speed
+		//b64 img of each spot (TL, TM, TR, ML, MR, BL, BM, BR)
+
+		var TLsrc = "none";
+		var TMsrc = "none";
+		var TRsrc = "none";
+		var MLsrc = "none";
+		var MRsrc = "none";
+		var BLsrc = "none";
+		var BMsrc = "none";
+		var BRsrc = "none";
+
+		if((buttonTopL.key != "buttonNoPicW") && (buttonTopL.key != "buttonNoPicB"))
+		{
+			TLsrc = game.cache.getImage('TLimage').src
+		}
+
+		if((buttonTopM.key != "buttonNoPicW") && (buttonTopM.key != "buttonNoPicB"))
+		{
+			TMsrc = game.cache.getImage('TMimage').src
+		}
+
+		if((buttonTopR.key != "buttonNoPicW") && (buttonTopR.key != "buttonNoPicB"))
+		{
+			TRsrc = game.cache.getImage('TRimage').src
+		}
+
+		if((buttonMiddleL.key != "buttonNoPicW") && (buttonMiddleL.key != "buttonNoPicB"))
+		{
+			MLsrc = game.cache.getImage('MLimage').src
+		}
+
+		if((buttonMiddleR.key != "buttonNoPicW") && (buttonMiddleR.key != "buttonNoPicB"))
+		{
+			MRsrc = game.cache.getImage('MRimage').src
+		}
+
+		if((buttonBottomL.key != "buttonNoPicW") && (buttonBottomL.key != "buttonNoPicB"))
+		{
+			BLsrc = game.cache.getImage('BLimage').src
+		}
+
+		if((buttonBottomM.key != "buttonNoPicW") && (buttonBottomM.key != "buttonNoPicB"))
+		{
+			BMsrc = game.cache.getImage('BMimage').src
+		}
+
+		if((buttonBottomR.key != "buttonNoPicW") && (buttonBottomR.key != "buttonNoPicB"))
+		{
+			BRsrc = game.cache.getImage('BRimage').src
+		}
+
+		//now build the final string to save:
+		var saveStr = savename + "|" + new Date().getTime() + "|" + speed + "|" + TLsrc + "|" + TMsrc + "|" + TRsrc + "|" + MLsrc + "|" + MRsrc + "|" + BLsrc + "|" + BMsrc + "|" + BRsrc;
+
+		
+		//Create new GIST with Data:
+		/*
+			User-Agent: VirtualDialScan
+			Content-Type: application/json
+
+			URL: https://api.github.com/gists
+
+			{
+			  "description": "the description for this gist",
+			  "public": true,
+			  "files": {
+				"file1.txt": {
+				  "content": "String file contents"
+				}
+			  }
+			}
+		*/
+
+		var xmlhttp = new XMLHttpRequest();
+		var url = "https://api.github.com/gists";
+		xmlhttp.open("POST", url, true);
+		xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+		//Send the proper header information along with the request
+		xmlhttp.onreadystatechange = function() {//Call a function when the state changes.
+
+			if(xmlhttp.readyState == 4 && xmlhttp.status == 201) {
+				alert(xmlhttp.responseText);
+				
+				var object = JSON.parse(xmlhttp.responseText);
+				alert(object.id);
+				alert(object.files['savefile.txt'].raw_url);
+			}
+		}
+
+		xmlhttp.send(JSON.stringify({
+			  description: "VirtualDialScan-Config-savename-" + new Date().getTime(),
+			  public: true,
+			  files: { "savefile.txt": { content: saveStr } }
+			}));
+
 	}
 
 	function create() {
@@ -568,12 +683,18 @@
 		buttonNextLevel = game.add.button(gameWidth + toolbarSz - padd - toolbarSz/4, toolbar.y + padd + 50, 'buttonPlus', nextLevel, this, 1, 0, 0);
 		buttonNextLevel.scale.setTo(toolbarSz/4/buttonNextLevel.width, toolbarSz/4/buttonNextLevel.width);
 		
-		buttonChangeColorSchema = game.add.button(toolbar.x + padd, toolbar.y + padd*2 + buttonNextLevel.height+ game.height*2/3, 'buttonSearch', changeSchema, this, 1, 0, 0);
-		buttonChangeColorSchema.scale.setTo(toolbar.width/3/buttonChangeColorSchema.width, toolbar.width/3/buttonChangeColorSchema.width);
+		buttonChangeColorSchema = game.add.button(gameWidth + padd, gameHeight - padd*2 - buttonNextLevel.height - 200, 'buttonColor', changeSchema, this, 1, 0, 0);
+		buttonChangeColorSchema.scale.setTo(toolbarSz/4/buttonChangeColorSchema.width, toolbarSz/4/buttonChangeColorSchema.width);
+
+		buttonSave = game.add.button(gameWidth + toolbarSz - padd - toolbarSz/4,  gameHeight - padd*2 - buttonNextLevel.height - 200, 'buttonSave', saveData, this, 1, 0, 0);
+		buttonSave.scale.setTo(toolbarSz/4/buttonSave.width, toolbarSz/4/buttonSave.width);
 		
 		toolbarGrp.add(buttonNextLevel);
 		toolbarGrp.add(buttonPreviousLevel);
 		toolbarGrp.add(buttonChangeColorSchema);
+		toolbarGrp.add(buttonSave);
+
+		
 		
 		buttonTopL = game.add.button(padd, padd, 'buttonNoPicW', browseForImage, this, 1, 0, 0);
 		buttonTopL.name = "TL";
@@ -653,7 +774,7 @@
 		var level = (speed < 5) ? speed : speed/5 + 4;
 		
 		var textL = "Level " + level;
-		var style = { font: "Arial", fontSize: 60*toolbarSz/288, fill: "#999999s", align: "center" }; //BP: TODO: Add text color to the theme!
+		var style = { font: "Arial", fontSize: 60*toolbarSz/288, fill: "#333333", align: "center" }; //BP: TODO: Add text color to the theme!
 		textLevel = game.add.text(toolbar.x + padd/2, toolbar.y + padd, textL, style);
 		toolbarGrp.add(textLevel);
 		//applySchema(currentSchema);
