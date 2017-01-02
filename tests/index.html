@@ -932,7 +932,7 @@
 			//https://api.github.com/gists/[ID] e.g.: https://api.github.com/gists/791c8a1ed5b6244501f05c9a2b11de73
 			var xmlhttp2 = new XMLHttpRequest();
 			var url = "https://api.github.com/gists/" + urlData["saveddata"];
-			xmlhttp2.open("GET", url, false);
+			xmlhttp2.open("GET", url, true);
 			xmlhttp2.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 			//Send the proper header information along with the request
 			xmlhttp2.onreadystatechange = function() {//Call a function when the state changes.
@@ -952,7 +952,7 @@
 					{
 						var xmlhttp3 = new XMLHttpRequest();
 						var url = object.files['savefile.txt'].raw_url;
-						xmlhttp3.open("GET", url, false);
+						xmlhttp3.open("GET", url, true);
 						xmlhttp3.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 						//Send the proper header information along with the request
 						xmlhttp3.onreadystatechange = function() {//Call a function when the state changes.
