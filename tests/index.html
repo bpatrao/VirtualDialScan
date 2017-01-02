@@ -199,18 +199,163 @@
 	//Control variable to know if a button on the toolbar has been pressed
 	var toolbarButtonClicked = 0;
 	//Handle to the Get (URL) Parameters and change default values (even load images?)
-	var urlData = getJsonFromUrl();
+	
 	//FullScreen mode is on?
 	var fullScreen = 0;
 	var fullScreenBtn;
 	var fullScreenBtnX;
 	var fullScreenBtnY;
 	
-	if(urlData["speed"] != undefined)
+	function LoadDataFromString(str_data_to_load)
 	{
-		speed = urlData["speed"];
-	}
+		var splitstring = str_data_to_load.split('|');
+		if(splitstring.length != 11)
+		{
+			alert("An error occurred while trying to load Saved Data for VirtualDialScan [Error: invalid number of parameters]");
+		}
+		else
+		{
+			var savedName = splitstring[0];
+			var savedDate = splitstring[1];
+			var savedSpeed = splitstring[2];
+			var saveTL = splitstring[3];
+			var saveTM = splitstring[4];
+			var saveTR = splitstring[5];
+			var saveML = splitstring[6];
+			var saveMR = splitstring[7];
+			var saveBL = splitstring[8];
+			var saveBM = splitstring[9];
+			var saveBR = splitstring[10];
+			
+			//alert("Was able to load the saved data name '"+savedName+"' from '"+new Date(savedDate)+"'!");
+			//now replace the data onto the images and the speed
+			this.speed = savedSpeed;
+			var level = (speed < 5) ? speed : speed/5 + 4;
+			this.textLevel.setText( "Level "+level);
+			
+			if(saveTL != 'none')
+			{
+				this.positionToPlaceImage = "TL";
 
+				if(saveTL.startsWith("http://") || saveTL.startsWith("https://"))
+				{
+					//URL for image
+					selectImageForSpot(saveTL);
+				}
+				else
+				{
+					//base64 content
+					placeB64ImageOnPosition(saveTL);
+				}
+			}
+			if(saveTM != 'none')
+			{
+				this.positionToPlaceImage = "TM";
+
+				if(saveTM.startsWith("http://") || saveTM.startsWith("https://"))
+				{
+					//URL for image
+					selectImageForSpot(saveTM);
+				}
+				else
+				{
+					//base64 content
+					placeB64ImageOnPosition(saveTM);
+				}
+			}
+			if(saveTR != 'none')
+			{
+				this.positionToPlaceImage = "TR";
+
+				if(saveTR.startsWith("http://") || saveTR.startsWith("https://"))
+				{
+					//URL for image
+					selectImageForSpot(saveTR);
+				}
+				else
+				{
+					//base64 content
+					placeB64ImageOnPosition(saveTR);
+				}
+			}
+			if(saveML != 'none')
+			{
+				this.positionToPlaceImage = "ML";
+
+				if(saveML.startsWith("http://") || saveML.startsWith("https://"))
+				{
+					//URL for image
+					selectImageForSpot(saveML);
+				}
+				else
+				{
+					//base64 content
+					placeB64ImageOnPosition(saveML);
+				}
+			}
+			if(saveMR != 'none')
+			{
+				this.positionToPlaceImage = "MR";
+
+				if(saveMR.startsWith("http://") || saveMR.startsWith("https://"))
+				{
+					//URL for image
+					selectImageForSpot(saveMR);
+				}
+				else
+				{
+					//base64 content
+					placeB64ImageOnPosition(saveMR);
+				}
+			}
+			if(saveBL != 'none')
+			{
+				this.positionToPlaceImage = "BL";
+
+				if(saveBL.startsWith("http://") || saveBL.startsWith("https://"))
+				{
+					//URL for image
+					selectImageForSpot(saveBL);
+				}
+				else
+				{
+					//base64 content
+					placeB64ImageOnPosition(saveBL);
+				}
+			}
+			if(saveBM != 'none')
+			{
+				this.positionToPlaceImage = "BM";
+
+				if(saveBM.startsWith("http://") || saveBM.startsWith("https://"))
+				{
+					//URL for image
+					selectImageForSpot(saveBM);
+				}
+				else
+				{
+					//base64 content
+					placeB64ImageOnPosition(saveBM);
+				}
+			}
+			if(saveBR != 'none')
+			{
+				this.positionToPlaceImage = "BR";
+
+				if(saveBR.startsWith("http://") || saveBR.startsWith("https://"))
+				{
+					//URL for image
+					selectImageForSpot(saveBR);
+				}
+				else
+				{
+					//base64 content
+					placeB64ImageOnPosition(saveBR);
+				}
+			}
+		}
+	}
+	
 	function getJsonFromUrl()
 	{
 		var query = location.search.substr(1);
@@ -221,6 +366,43 @@
 		});
 		
 		return result;
+	}
+	
+	function placeB64ImageOnPosition(src)
+	{
+		var data = new Image();
+		data.src = src;
+		try {
+			game.cache.removeImage(positionToPlaceImage+'image');
+		} catch(e) {};
+		
+		var newImage = game.cache.addImage(positionToPlaceImage+'image', src, data);
+		
+		if(positionToPlaceImage == "TL") {
+			buttonTopL.loadTexture(positionToPlaceImage+'image', 0);
+			ResizeButton(buttonTopL, finalImageWidth);
+		} else if(positionToPlaceImage == "TM") {
+			buttonTopM.loadTexture(positionToPlaceImage+'image', 0);
+			ResizeButton(buttonTopM, finalImageWidth);
+		} else if(positionToPlaceImage == "TR") {
+			buttonTopR.loadTexture(positionToPlaceImage+'image', 0);
+			ResizeButton(buttonTopR, finalImageWidth);
+		} else if(positionToPlaceImage == "ML") {
+			buttonMiddleL.loadTexture(positionToPlaceImage+'image', 0);
+			ResizeButton(buttonMiddleL, finalImageWidth);
+		} else if(positionToPlaceImage == "MR") {
+			buttonMiddleR.loadTexture(positionToPlaceImage+'image', 0);
+			ResizeButton(buttonMiddleR, finalImageWidth);
+		} else if(positionToPlaceImage == "BL") {
+			buttonBottomL.loadTexture(positionToPlaceImage+'image', 0);
+			ResizeButton(buttonBottomL, finalImageWidth);
+		} else if(positionToPlaceImage == "BM") {
+			buttonBottomM.loadTexture(positionToPlaceImage+'image', 0);
+			ResizeButton(buttonBottomM, finalImageWidth);
+		} else if(positionToPlaceImage == "BR") {
+			buttonBottomR.loadTexture(positionToPlaceImage+'image', 0);
+			ResizeButton(buttonBottomR, finalImageWidth);						
+		}
 	}
 	
 	function handleFiles(files)
@@ -238,41 +420,7 @@
 				{
 					dataURI = e.target.result;
 
-					var data = new Image();
-					data.src = dataURI;
-					try {
-						game.cache.removeImage(positionToPlaceImage+'image');
-					} catch(e) {};
-					
-					var newImage = game.cache.addImage(positionToPlaceImage+'image', dataURI, data);
-					
-					if(positionToPlaceImage == "TL") {
-						buttonTopL.loadTexture(positionToPlaceImage+'image', 0);
-						ResizeButton(buttonTopL, finalImageWidth);
-					} else if(positionToPlaceImage == "TM") {
-						buttonTopM.loadTexture(positionToPlaceImage+'image', 0);
-						ResizeButton(buttonTopM, finalImageWidth);
-					} else if(positionToPlaceImage == "TR") {
-						buttonTopR.loadTexture(positionToPlaceImage+'image', 0);
-						ResizeButton(buttonTopR, finalImageWidth);
-					} else if(positionToPlaceImage == "ML") {
-						buttonMiddleL.loadTexture(positionToPlaceImage+'image', 0);
-						ResizeButton(buttonMiddleL, finalImageWidth);
-					} else if(positionToPlaceImage == "MR") {
-						buttonMiddleR.loadTexture(positionToPlaceImage+'image', 0);
-						ResizeButton(buttonMiddleR, finalImageWidth);
-					} else if(positionToPlaceImage == "BL") {
-						buttonBottomL.loadTexture(positionToPlaceImage+'image', 0);
-						ResizeButton(buttonBottomL, finalImageWidth);
-					} else if(positionToPlaceImage == "BM") {
-						buttonBottomM.loadTexture(positionToPlaceImage+'image', 0);
-						ResizeButton(buttonBottomM, finalImageWidth);
-					} else if(positionToPlaceImage == "BR") {
-						buttonBottomR.loadTexture(positionToPlaceImage+'image', 0);
-						ResizeButton(buttonBottomR, finalImageWidth);						
-					}
-					
-					//topGrp.bringToTop();
+					placeB64ImageOnPosition(dataURI);
 				};
 			})(f);
 
@@ -622,11 +770,9 @@
 		xmlhttp.onreadystatechange = function() {//Call a function when the state changes.
 
 			if(xmlhttp.readyState == 4 && xmlhttp.status == 201) {
-				alert(xmlhttp.responseText);
-				
 				var object = JSON.parse(xmlhttp.responseText);
-				alert(object.id);
-				alert(object.files['savefile.txt'].raw_url);
+				alert("Configuration successfully saved! You can now access this configuration using this URL: " + window.location.protocol + "//" + window.location.host + window.location.pathname + "?saveddata="+object.id);
+				window.location = window.location.protocol + "//" + window.location.host + window.location.pathname + "?saveddata="+object.id;
 			}
 		}
 
@@ -778,6 +924,68 @@
 		textLevel = game.add.text(toolbar.x + padd/2, toolbar.y + padd, textL, style);
 		toolbarGrp.add(textLevel);
 		//applySchema(currentSchema);
+		
+		var urlData = getJsonFromUrl();
+		if(urlData["saveddata"] != undefined)
+		{
+			//1st get the data from Gists:
+			//https://api.github.com/gists/[ID] e.g.: https://api.github.com/gists/791c8a1ed5b6244501f05c9a2b11de73
+			var xmlhttp2 = new XMLHttpRequest();
+			var url = "https://api.github.com/gists/" + urlData["saveddata"];
+			xmlhttp2.open("GET", url, false);
+			xmlhttp2.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+			//Send the proper header information along with the request
+			xmlhttp2.onreadystatechange = function() {//Call a function when the state changes.
+
+				if(xmlhttp2.readyState == 4 && xmlhttp2.status == 200) 
+				{
+					var object = JSON.parse(xmlhttp2.responseText);
+					//alert(object.files['savefile.txt'].raw_url);
+					
+					//now get the file in the RAW_URL
+					//2nd get the raw_url of the file and download it locally (it is a string)
+					if(object.files['savefile.txt'].truncated == false)
+					{
+						LoadDataFromString(object.files['savefile.txt'].content);
+					}
+					else
+					{
+						var xmlhttp3 = new XMLHttpRequest();
+						var url = object.files['savefile.txt'].raw_url;
+						xmlhttp3.open("GET", url, false);
+						xmlhttp3.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+						//Send the proper header information along with the request
+						xmlhttp3.onreadystatechange = function() {//Call a function when the state changes.
+						
+							if(xmlhttp3.readyState == 4 && xmlhttp3.status == 200) {
+								//alert('got the rawFile!!!');
+								LoadDataFromString(loadedString);
+							}
+							else if(xmlhttp3.readyState == 4 && xmlhttp3.status != 200) {
+								alert("Error! An error ocurred while trying to get the saved VirtualDialScan configuration. Error code:" + xmlhttp3.status);
+							}
+						}
+						
+						xmlhttp3.send();
+					}
+				}
+				else if(xmlhttp2.readyState == 4 && xmlhttp2.status == 404) {
+					alert("Error! Saved VirtualDialScan configuration not found or was deleted :(");
+				}
+				else if(xmlhttp2.readyState == 4 && xmlhttp2.status != 200) {
+					alert("Error! An error ocurred while trying to get the saved VirtualDialScan configuration. Error code:" + xmlhttp2.status);
+				}
+			}
+
+			xmlhttp2.send();
+		}
+		else
+		{
+			if(urlData["speed"] != undefined)
+			{
+				speed = urlData["speed"];
+			}
+		}
 	}
 
 	function nextLevel()
