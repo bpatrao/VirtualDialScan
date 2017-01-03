@@ -66,12 +66,39 @@
 					<input type="button" onclick="document.getElementById('vds-add-image-modal-frame').style.display='none';" value="Cancel">
 				</div>
 			</div>
+		</div>
+	</div>
+
+	<!-- 	<input type="file" id="fileChooser" onchange="handleFiles(this.files)" style="display:none" /> -->
+    <div id="vds-save-load-modal-frame" style="display: none; position: fixed; z-index: 1; padding: 0px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
+		<div id="vds-save-load-modal-window" style="background: #efefee; bottom: 0; height: 90%;left: 0;margin: auto;position: absolute;top: 0;right: 0;width: 95%;border-radius:15px; border: 2px solid black; padding: 10px;">
+			<div id="save-load-menu" style="height: 150px; overflow: auto; border-radius:10px; border: 1px solid black;">
+				<h2 style="margin:0px; padding:0px; font-weight: bold; align: center; text-align: center;">Save Configuration to Cloud</h2>
+				<ul style="margin:0px; padding:0px; padding-left:10px; margin-left: 15px;">
+					<li>Name: &nbsp;<input style="width:100px" type="text" id="save_str_name"></input>&nbsp;<input type="button" onclick="saveData();" value="Save to Cloud"></button></li>
+				</ul>
+			</div>
+			<div id="vds-load-pane" style="border-radius:10px; position: absolute; top: 150px; bottom: 50px; left:15px; right:15px; overflow: auto; border: 1px solid black;">
+				<h2 style="margin:0px; padding:0px; font-weight: bold; align: center; text-align: center;">Load Configuration from Cloud</h2>
+				<select id="select-load-file" multiline="multiline" size="30" onchange="alert(this.selectedIndex)">
+				</select>
+			</div>
+			<div style="position:absolute; bottom:1px; right: 15px; left:15px; height: 45px;padding: 0px;">
+				<div style="text-align:right; width:48%; height: 45px; position: absolute; right:0px; vertical-align: middle;">
+					<input type="button" onclick="document.getElementById('vds-save-load-modal-frame').style.display='none';" value="Cancel">
+				</div>
+			</div>
 
 		</div>
 	</div>
-<!-- 	<input type="file" id="fileChooser" onchange="handleFiles(this.files)" style="display:none" /> -->
-    <script type="text/javascript">
+	
+	<script type="text/javascript">
 
+	function showSaveLoadModalFrame()
+	{
+		document.getElementById('vds-save-load-modal-frame').style.display='block';
+	}
+	
 	function selectImageForSpot(strUrl)
 	{
 		try {
@@ -435,9 +462,13 @@
 		game.load.image('arrowW', 'set1/arrowW.png');
 		game.load.image('arrowB', 'set1/arrowB.png');
 
-		game.load.image('buttonPlus','set1/plus.png');
-		game.load.image('buttonMinus','set1/minus.png');
+		game.load.image('buttonPlusB','set1/plusB.png');
+		game.load.image('buttonMinusB','set1/minusB.png');
 
+		game.load.image('buttonPlusW','set1/plusW.png');
+		game.load.image('buttonMinusW','set1/minusW.png');
+
+		
 		game.load.image('buttonSearch','set1/file_search.png');
 
 		game.load.image('buttonColor', 'set1/color.png');
@@ -452,13 +483,17 @@
 		switch(schemaID)
 		{
 			case 0:
-				game.stage.backgroundColor = '#222222';
+				game.stage.backgroundColor = '#111111';
 				tintColor = 'rgba(255,255,255, 0.3)';
 				toolbarColor = '#ffffff'
 		
-				textLevel.style.fill = '#444444';
+				textLevel.style.fill = '#222222';
+				textLevel.setStyle(textLevel.style);
+				
 				//change buttons
 				arrowSprite.loadTexture('arrowW');
+				buttonPreviousLevel.loadTexture('buttonMinusB');
+				buttonNextLevel.loadTexture('buttonPlusB');
 				
 				if(buttonTopL.key == "buttonNoPicB")
 					buttonTopL.loadTexture("buttonNoPicW", 0, false);
@@ -476,18 +511,22 @@
 					buttonBottomM.loadTexture("buttonNoPicW", 0, false);
 				if(buttonBottomR.key == "buttonNoPicB")
 					buttonBottomR.loadTexture("buttonNoPicW", 0, false);
+					
 				
 
 				break;
 			case 1:
-				game.stage.backgroundColor = '#eeeeee';
+				game.stage.backgroundColor = '#efefef';
 				tintColor = 'rgba(122,123,122, 0.3)';
-				toolbarColor = '#333333'
+				toolbarColor = '#444444'
 				
-				textLevel.style.fill = '#eeeeee';
+				textLevel.style.fill = '#efefef';
+				textLevel.setStyle(textLevel.style);
 
 				//change buttons
 				arrowSprite.loadTexture('arrowB');
+				buttonPreviousLevel.loadTexture('buttonMinusW');
+				buttonNextLevel.loadTexture('buttonPlusW');
 
 				if(buttonTopL.key == "buttonNoPicW")
 					buttonTopL.loadTexture("buttonNoPicB", 0, false);
@@ -513,7 +552,7 @@
 				toolbarColor = '#66eeff'
 				break;*/
 			default:
-				game.stage.backgroundColor = '#000000';
+				game.stage.backgroundColor = '#111111';
 				tintColor = 'rgba(255,255,255, 0.3)';
 				toolbarColor = '#ffffff'
 				arrowSprite.loadTexture('arrowW');
@@ -823,16 +862,16 @@
 		
 		spriteToolbar = drawRECT(toolbar, toolbarColor, toolbarGrp);
 		
-		buttonPreviousLevel = game.add.button(gameWidth + padd, toolbar.y + padd + 50, 'buttonMinus', previousLevel, this, 1, 0, 0);
+		buttonPreviousLevel = game.add.button(gameWidth + padd, toolbar.y + padd + 50, 'buttonMinusB', previousLevel, this, 1, 0, 0);
 		buttonPreviousLevel.scale.setTo(toolbarSz/4/buttonPreviousLevel.width, toolbarSz/4/buttonPreviousLevel.width);
 		
-		buttonNextLevel = game.add.button(gameWidth + toolbarSz - padd - toolbarSz/4, toolbar.y + padd + 50, 'buttonPlus', nextLevel, this, 1, 0, 0);
+		buttonNextLevel = game.add.button(gameWidth + toolbarSz - padd - toolbarSz/4, toolbar.y + padd + 50, 'buttonPlusB', nextLevel, this, 1, 0, 0);
 		buttonNextLevel.scale.setTo(toolbarSz/4/buttonNextLevel.width, toolbarSz/4/buttonNextLevel.width);
 		
 		buttonChangeColorSchema = game.add.button(gameWidth + padd, gameHeight - padd*2 - buttonNextLevel.height - 200, 'buttonColor', changeSchema, this, 1, 0, 0);
 		buttonChangeColorSchema.scale.setTo(toolbarSz/4/buttonChangeColorSchema.width, toolbarSz/4/buttonChangeColorSchema.width);
 
-		buttonSave = game.add.button(gameWidth + toolbarSz - padd - toolbarSz/4,  gameHeight - padd*2 - buttonNextLevel.height - 200, 'buttonSave', saveData, this, 1, 0, 0);
+		buttonSave = game.add.button(gameWidth + toolbarSz - padd - toolbarSz/4,  gameHeight - padd*2 - buttonNextLevel.height - 200, 'buttonSave', showSaveLoadModalFrame, this, 1, 0, 0);
 		buttonSave.scale.setTo(toolbarSz/4/buttonSave.width, toolbarSz/4/buttonSave.width);
 		
 		toolbarGrp.add(buttonNextLevel);
