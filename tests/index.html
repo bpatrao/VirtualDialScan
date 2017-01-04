@@ -179,7 +179,7 @@
 	
 	var dataToAdd = "";
 	//////// Sizes / Widths / Heights
-	var toolbarSz = 100; //window.innerWidth*.15;
+	var toolbarSz = 120; //window.innerWidth*.15;
 	var gameWidth = window.innerWidth-1-toolbarSz;
 	var gameHeight = window.innerHeight-1;
 	var padd = 20; //*gameWidth/1087;
@@ -215,7 +215,7 @@
 	var toolbar;
 	var spriteToolbar;
 	//Toolbar buttons
-	var buttonNextLevel, buttonPreviousLevel, buttonChangeColorSchema;
+	var buttonNextLevel, buttonPreviousLevel, buttonChangeColorSchema, imageCSW, imageWSW, imageAPCC;
 	//Text containing current level
 	var textLevel;
 	//Toolbar background color
@@ -479,6 +479,10 @@
 		
 		game.load.spritesheet('buttonNoPicW', 'set1/nopicW.png', 615, 615);
 		game.load.spritesheet('buttonNoPicB', 'set1/nopicB.png', 614, 614);
+		
+		game.load.image('apcc', 'APCC.jpg'); //120x80
+		game.load.image('wsw', 'WatchfulSoftware.png'); //120x45
+		game.load.image('csw', 'CriticalSoftware.jpg'); //120x120
 	}
 	
 	function applySchema(schemaID)
@@ -876,16 +880,23 @@
 		buttonNextLevel = game.add.button(gameWidth + toolbarSz - padd - toolbarSz/4, toolbar.y + padd + 50, 'buttonPlusB', nextLevel, this, 1, 0, 0);
 		buttonNextLevel.scale.setTo(toolbarSz/4/buttonNextLevel.width, toolbarSz/4/buttonNextLevel.width);
 		
-		buttonChangeColorSchema = game.add.button(gameWidth + padd, gameHeight - padd*2 - buttonNextLevel.height - 200, 'buttonColor', changeSchema, this, 1, 0, 0);
+		buttonChangeColorSchema = game.add.button(gameWidth + padd, padd*2 + 50 + buttonNextLevel.height, 'buttonColor', changeSchema, this, 1, 0, 0);
 		buttonChangeColorSchema.scale.setTo(toolbarSz/4/buttonChangeColorSchema.width, toolbarSz/4/buttonChangeColorSchema.width);
-
-		buttonSave = game.add.button(gameWidth + toolbarSz - padd - toolbarSz/4,  gameHeight - padd*2 - buttonNextLevel.height - 200, 'buttonSave', showSaveLoadModalFrame, this, 1, 0, 0);
+		
+		buttonSave = game.add.button(gameWidth + toolbarSz - padd - toolbarSz/4,  padd*2 + 50 + buttonNextLevel.height, 'buttonSave', showSaveLoadModalFrame, this, 1, 0, 0);
 		buttonSave.scale.setTo(toolbarSz/4/buttonSave.width, toolbarSz/4/buttonSave.width);
 		
+		imageCSW = game.add.button(gameWidth, gameHeight - 15 - 120- 120 - 73, 'wsw', null, this, 1, 0, 0);
+		imageCSW = game.add.button(gameWidth, gameHeight - 10 - 120 - 73, 'csw', null, this, 1, 0, 0);
+		imageAPCC = game.add.button(gameWidth, gameHeight- 5 - 73, 'apcc', null, this, 1, 0, 0);
+
 		toolbarGrp.add(buttonNextLevel);
 		toolbarGrp.add(buttonPreviousLevel);
 		toolbarGrp.add(buttonChangeColorSchema);
 		toolbarGrp.add(buttonSave);
+//		toolbarGrp.add(imageCSW);
+//		toolbarGrp.add(imageWSW);
+//		toolbarGrp.add(imageAPCC);
 
 		
 		
