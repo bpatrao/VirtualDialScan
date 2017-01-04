@@ -72,23 +72,25 @@
 	<!-- 	<input type="file" id="fileChooser" onchange="handleFiles(this.files)" style="display:none" /> -->
     <div id="vds-save-load-modal-frame" style="display: none; position: fixed; z-index: 1; padding: 0px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
 		<div id="vds-save-load-modal-window" style="background: #efefee; bottom: 0; height: 90%;left: 0;margin: auto;position: absolute;top: 0;right: 0;width: 95%;border-radius:15px; border: 2px solid black; padding: 10px;">
-			<div id="save-load-menu" style="height: 150px; overflow: auto; border-radius:10px; border: 1px solid black;">
+			<div id="save-load-menu" style="height: 120px; overflow: auto; border-radius:10px; border: 1px solid black; margin-left:5px; margin-right:5px;">
 				<h2 style="margin:0px; padding:0px; font-weight: bold; align: center; text-align: center;">Save Configuration to Cloud</h2>
-				<ul style="margin:0px; padding:0px; padding-left:10px; margin-left: 15px;">
-					<li>Name: &nbsp;<input style="width:100px" type="text" id="save_str_name"></input>&nbsp;<input type="button" onclick="saveData();" value="Save to Cloud"></button></li>
-				</ul>
+				<br/>
+				<p style="margin:10px; padding:10px">Name: &nbsp;<input style="width:250px" type="text" id="save_str_name" onkeyup="if(this.value.length > 0){document.getElementById('save_data_button').disabled=false;}else{document.getElementById('save_data_button').disabled=true;}"></input> &nbsp; <input type="button" id="save_data_button" disabled="true" onclick="saveData();" value="Save to Cloud"></button></p>
 			</div>
-			<div id="vds-load-pane" style="border-radius:10px; position: absolute; top: 150px; bottom: 50px; left:15px; right:15px; overflow: auto; border: 1px solid black;">
+			<div id="vds-load-pane" style="border-radius:10px; position: absolute; top: 150px; bottom: 50px; left:15px; right:15px; border: 1px solid black;">
 				<h2 style="margin:0px; padding:0px; font-weight: bold; align: center; text-align: center;">Load Configuration from Cloud</h2>
-				<select id="select-load-file" multiline="multiline" size="30" onchange="alert(this.selectedIndex)">
-				</select>
+				<div style="margin:19px;"><span style="width: 70px;">Filter: </span><span style="position:absolute; left: 75px; right: 20px;"><input type="text" style="width:100%; top:0px;" id="load_str_filter" onkeyup="alert(this.value);"></input></span></div>
+				<div id="vds-load-names-filter" style="overflow:auto; position:absolute; top:80px; bottom: 50px; right:15px; left:15px; border: 1px solid black; margin:0px; padding:0px;">
+					<span style="display: inline-block; width:24%;margin: 0px; padding: 0px; border-right: 1px solid black;border-bottom: 2px solid black;"><b>&nbsp;Name</b></span>
+					<span style="display: inline-block; width:24%;margin: 0px; padding: 0px; border-right: 1px solid black;border-bottom: 2px solid black;"><b>&nbsp;Date</b></span>
+					<span style="display: inline-block; width:49%;margin: 0px; padding: 0px; border-bottom: 2px solid black;"><b>&nbsp;URL (click to load)</b></span>
+				</div>
 			</div>
 			<div style="position:absolute; bottom:1px; right: 15px; left:15px; height: 45px;padding: 0px;">
 				<div style="text-align:right; width:48%; height: 45px; position: absolute; right:0px; vertical-align: middle;">
-					<input type="button" onclick="document.getElementById('vds-save-load-modal-frame').style.display='none';" value="Cancel">
+					<input type="button" onclick="document.getElementById('vds-save-load-modal-frame').style.display='none';" value="Cancel"></input>
 				</div>
 			</div>
-
 		</div>
 	</div>
 	
@@ -175,6 +177,7 @@
 	//Phaser Game Variable
 	var game;
 	
+	var dataToAdd = "";
 	//////// Sizes / Widths / Heights
 	var toolbarSz = 100; //window.innerWidth*.15;
 	var gameWidth = window.innerWidth-1-toolbarSz;
@@ -233,7 +236,7 @@
 	var fullScreenBtnX;
 	var fullScreenBtnY;
 	
-	function LoadDataFromString(str_data_to_load)
+	function LoadDataFromString(str_data_to_load, data)
 	{
 		var splitstring = str_data_to_load.split('|');
 		if(splitstring.length != 11)
@@ -511,9 +514,6 @@
 					buttonBottomM.loadTexture("buttonNoPicW", 0, false);
 				if(buttonBottomR.key == "buttonNoPicB")
 					buttonBottomR.loadTexture("buttonNoPicW", 0, false);
-					
-				
-
 				break;
 			case 1:
 				game.stage.backgroundColor = '#efefef';
@@ -544,7 +544,6 @@
 					buttonBottomM.loadTexture("buttonNoPicB", 0, false);
 				if(buttonBottomR.key == "buttonNoPicW")
 					buttonBottomR.loadTexture("buttonNoPicB", 0, false);
-				
 				break;
 			/*case 2:
 				game.stage.backgroundColor = '#E6E6FA';
@@ -705,7 +704,6 @@
 		var arrowProportion = minProportion / 2300;
 		arrowSprite.scale.setTo(arrowProportion, arrowProportion);
 		
-
 		spriteToolbar.x = gameWidth;
 		spriteToolbar.height = gameHeight;
 		spriteToolbar.y = 0;
@@ -725,7 +723,7 @@
 
 	function saveData() {
 
-		var savename = window.prompt("Name of Saved Data", "name");
+		var savename = document.getElementById('save_str_name').value;
 		//Get data to save:
 		//Speed
 		//b64 img of each spot (TL, TM, TR, ML, MR, BL, BM, BR)
@@ -782,25 +780,6 @@
 		//now build the final string to save:
 		var saveStr = savename + "|" + new Date().getTime() + "|" + speed + "|" + TLsrc + "|" + TMsrc + "|" + TRsrc + "|" + MLsrc + "|" + MRsrc + "|" + BLsrc + "|" + BMsrc + "|" + BRsrc;
 
-		
-		//Create new GIST with Data:
-		/*
-			User-Agent: VirtualDialScan
-			Content-Type: application/json
-
-			URL: https://api.github.com/gists
-
-			{
-			  "description": "the description for this gist",
-			  "public": true,
-			  "files": {
-				"file1.txt": {
-				  "content": "String file contents"
-				}
-			  }
-			}
-		*/
-
 		var xmlhttp = new XMLHttpRequest();
 		var url = "https://api.github.com/gists";
 		xmlhttp.open("POST", url, true);
@@ -810,8 +789,10 @@
 
 			if(xmlhttp.readyState == 4 && xmlhttp.status == 201) {
 				var object = JSON.parse(xmlhttp.responseText);
-				alert("Configuration successfully saved! You can now access this configuration using this URL: " + window.location.protocol + "//" + window.location.host + window.location.pathname + "?saveddata="+object.id);
-				window.location = window.location.protocol + "//" + window.location.host + window.location.pathname + "?saveddata="+object.id;
+				//alert("Configuration successfully saved! You can now access this configuration using this URL: " + window.location.protocol + "//" + window.location.host + window.location.pathname + "?saveddata="+object.id);
+				
+				var dataToAdd = savename + "|" + new Date().getTime() + "|" + object.id;
+				GetGist("https://api.github.com/gists/f502e4c8377c2cd78f712a88e9a1f2c9", AddSavedData, dataToAdd);
 			}
 		}
 
@@ -820,7 +801,34 @@
 			  public: true,
 			  files: { "savefile.txt": { content: saveStr } }
 			}));
+	}
+	
+	function AddSavedData(file_contents, data)
+	{
+		//add the recently saved Data to the current gist with the list of files!
+		//"1477cfa5a5b5b41be637c6504d0f54683d12117d"
+		var xmlhttp = new XMLHttpRequest();
+		var url = "https://api.github.com/gists/f502e4c8377c2cd78f712a88e9a1f2c9";
+		xmlhttp.open("PATCH", url, true);
+		xmlhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+		xmlhttp.setRequestHeader("Authorization", "token 1477cfa5a5b5b41be637c6504d0f54683d12117d");
+		//Send the proper header information along with the request
+		xmlhttp.onreadystatechange = function() {//Call a function when the state changes.
 
+			if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+				var object = JSON.parse(xmlhttp.responseText);
+				console.log("Configuration successfully updated!");
+
+				//Update the lists of loadable data:
+				FillOutLoadableData(data);
+				//window.location = window.location.protocol + "//" + window.location.host + window.location.pathname + "?saveddata=" + object.id;
+			}
+		}
+
+		xmlhttp.send(JSON.stringify({
+			  description: "Saved anonymous Gists list for VDS. Updated: " + new Date(),
+			  files: { "savefile.txt": { content: file_contents + "\n" + data } }
+			}));
 	}
 
 	function create() {
@@ -968,55 +976,7 @@
 		if(urlData["saveddata"] != undefined)
 		{
 			//1st get the data from Gists:
-			//https://api.github.com/gists/[ID] e.g.: https://api.github.com/gists/791c8a1ed5b6244501f05c9a2b11de73
-			var xmlhttp2 = new XMLHttpRequest();
-			var url = "https://api.github.com/gists/" + urlData["saveddata"];
-			xmlhttp2.open("GET", url, true);
-			xmlhttp2.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-			//Send the proper header information along with the request
-			xmlhttp2.onreadystatechange = function() {//Call a function when the state changes.
-
-				if(xmlhttp2.readyState == 4 && xmlhttp2.status == 200) 
-				{
-					var object = JSON.parse(xmlhttp2.responseText);
-					//alert(object.files['savefile.txt'].raw_url);
-					
-					//now get the file in the RAW_URL
-					//2nd get the raw_url of the file and download it locally (it is a string)
-					if(object.files['savefile.txt'].truncated == false)
-					{
-						LoadDataFromString(object.files['savefile.txt'].content);
-					}
-					else
-					{
-						var xmlhttp3 = new XMLHttpRequest();
-						var url = object.files['savefile.txt'].raw_url;
-						xmlhttp3.open("GET", url, true);
-						xmlhttp3.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-						//Send the proper header information along with the request
-						xmlhttp3.onreadystatechange = function() {//Call a function when the state changes.
-						
-							if(xmlhttp3.readyState == 4 && xmlhttp3.status == 200) {
-								//alert('got the rawFile!!!');
-								LoadDataFromString(loadedString);
-							}
-							else if(xmlhttp3.readyState == 4 && xmlhttp3.status != 200) {
-								alert("Error! An error ocurred while trying to get the saved VirtualDialScan configuration. Error code:" + xmlhttp3.status);
-							}
-						}
-						
-						xmlhttp3.send();
-					}
-				}
-				else if(xmlhttp2.readyState == 4 && xmlhttp2.status == 404) {
-					alert("Error! Saved VirtualDialScan configuration not found or was deleted :(");
-				}
-				else if(xmlhttp2.readyState == 4 && xmlhttp2.status != 200) {
-					alert("Error! An error ocurred while trying to get the saved VirtualDialScan configuration. Error code:" + xmlhttp2.status);
-				}
-			}
-
-			xmlhttp2.send();
+			GetGist("https://api.github.com/gists/" + urlData["saveddata"], LoadDataFromString, "")
 		}
 		else
 		{
@@ -1025,6 +985,87 @@
 				speed = urlData["speed"];
 			}
 		}
+		
+		//
+		// Get list of Gists:
+		//
+		GetGist("https://api.github.com/gists/f502e4c8377c2cd78f712a88e9a1f2c9", FillOutLoadableData, "");
+		//   vds-load-names-filter
+		
+	}
+	
+	function FillOutLoadableData(str, data)
+	{
+		var elem = document.getElementById('vds-load-names-filter');
+		var splitLines = str.split('\n');
+		for( var i = 0; i < splitLines.length; i++)
+		{
+			var splitColumns = splitLines[i].split('|');
+			if(splitColumns.length != 3)
+			{
+				continue;
+			}
+			else
+			{
+				var d = new Date(0);
+				d.setUTCSeconds(splitColumns[1]/1000);
+			
+				elem.innerHTML += '<br/><span style="display: inline-block; width:24%;margin: 0px; padding: 0px; border-right: 1px solid black;border-bottom: 1px solid black;">&nbsp;'+splitColumns[0]+'</span><span style="display: inline-block; width:24%;margin: 0px; padding: 0px; border-right: 1px solid black;border-bottom: 1px solid black;">&nbsp;'+d.toLocaleDateString()+'</span><span style="display: inline-block; width:49%;margin: 0px; padding: 0px; border-bottom: 1px solid black; text-overflow:ellipsis;">&nbsp;<a href="'+window.location.protocol + "//" + window.location.host + window.location.pathname + "?saveddata=" + splitColumns[2]+'">'+splitColumns[2]+'</a></span>'
+			}
+		}
+		
+	}
+	
+	function GetGist(url, fn, data)
+	{
+		var xmlhttp2 = new XMLHttpRequest();
+		var url = url;
+		xmlhttp2.open("GET", url, true);
+		xmlhttp2.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+		//Send the proper header information along with the request
+		xmlhttp2.onreadystatechange = function() {//Call a function when the state changes.
+
+			if(xmlhttp2.readyState == 4 && xmlhttp2.status == 200) 
+			{
+				var object = JSON.parse(xmlhttp2.responseText);
+				//alert(object.files['savefile.txt'].raw_url);
+				
+				//now get the file in the RAW_URL
+				//2nd get the raw_url of the file and download it locally (it is a string)
+				if(object.files['savefile.txt'].truncated == false)
+				{
+					fn(object.files['savefile.txt'].content, data);
+				}
+				else
+				{
+					var xmlhttp3 = new XMLHttpRequest();
+					var url = object.files['savefile.txt'].raw_url;
+					xmlhttp3.open("GET", url, true);
+					xmlhttp3.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+					//Send the proper header information along with the request
+					xmlhttp3.onreadystatechange = function() {//Call a function when the state changes.
+					
+						if(xmlhttp3.readyState == 4 && xmlhttp3.status == 200) {
+							//alert('got the rawFile!!!');
+							fn(loadedString, data);
+						}
+						else if(xmlhttp3.readyState == 4 && xmlhttp3.status != 200) {
+							alert("Error! An error ocurred while trying to get the saved VirtualDialScan configuration. Error code:" + xmlhttp3.status);
+						}
+					}
+					
+					xmlhttp3.send();
+				}
+			}
+			else if(xmlhttp2.readyState == 4 && xmlhttp2.status == 404) {
+				alert("Error! Saved VirtualDialScan configuration not found or was deleted :(");
+			}
+			else if(xmlhttp2.readyState == 4 && xmlhttp2.status != 200) {
+				alert("Error! An error ocurred while trying to get the saved VirtualDialScan configuration. Error code:" + xmlhttp2.status);
+			}
+		}
+
+		xmlhttp2.send();
 	}
 
 	function nextLevel()
