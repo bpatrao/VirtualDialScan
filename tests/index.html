@@ -37,23 +37,18 @@
 	<div id="vds-add-image-modal-frame" style="display: none; position: fixed; z-index: 1; padding: 0px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
 		<div id="vds-add-image-modal-window" style="background: #efefee; bottom: 0; height: 90%;left: 0;margin: auto;position: absolute;top: 0;right: 0;width: 95%;border-radius:15px; border: 2px solid black; padding: 10px;">
 			<div style="height: 150px; overflow: auto;">
-				<h2 style="margin:0px; padding:0px; font-weight: bold; align: center; text-align: center;">Add image...</h2>
+				<h2 style="margin:0px; padding:0px; font-weight: bold; align: center; text-align: center;">Add/Set Text or Image</h2>
 				<ul style="margin:0px; padding:0px; padding-left:10px; margin-left: 15px;">
-					<li>Browse: <input type="file" id="fileChooser" onchange="handleFiles(this.files); document.getElementById('vds-add-image-modal-frame').style.display='none';"/></li>
+					<li style="height:25px;"><b>Text:</b> &nbsp; &nbsp; <input type="text" style="width:50%" onkeyup="document.getElementById('vds_button_set_text').disabled = (this.value.length==0)" id="vds_text_for_position"></input> &nbsp; <input type="button" disabled="disabled" id="vds_button_set_text" onclick="selectText();" value="Set Text"></input></li>
+					<li style="height:25px;"><b>Browse:</b><input type="file" id="fileChooser" onchange="handleFiles(this.files); document.getElementById('vds-add-image-modal-frame').style.display='none';"/></li>
 					<!-- <li>(Optional) Description: <input type="text" style="width:100px;" id="image_caption"></input>&nbsp;<input type="button" onclick="document.getElementById('image_caption').value = '';" value="Clear Description"></button></li>-->
-					<li>Search Online:
-						<ul>
-							<li>Type:
-								<select id="search_type_pixabay" name="search_type_pixabay" style="width:100px">
+					<li style="height:25px;"><b>Search:</b>&nbsp; <input style="width:100px" type="text" onkeyup="document.getElementById('vds_search_pixabay_btn').disabled = (this.value.length==0)" id="search_str_pixabay"></input>&nbsp;Type: <select id="search_type_pixabay" name="search_type_pixabay" style="width:100px">
 									<option value="">All</option>  
 									<option value="photo">Photo</option>
 									<option value="illustration">Illustration</option>
-									<option value="vector">Vector Graphics</option>
+									<option value="vector" selected="selected">Vector Graphics</option>
 								</select>
-							</li>
-							<li>Text: &nbsp;<input style="width:100px" type="text" id="search_str_pixabay"></input>&nbsp;<input type="button" onclick="getResults();" value="Search"></button></li>
-						</ul>
-					</li>
+							&nbsp;<input type="button" id="vds_search_pixabay_btn" onclick="getResults();" disabled="disabled" value="Search"></button></li>
 				</ul>
 			</div>
 
@@ -99,6 +94,12 @@
 	function showSaveLoadModalFrame()
 	{
 		document.getElementById('vds-save-load-modal-frame').style.display='block';
+	}
+	
+	function selectText()
+	{
+		var x = document.getElementById('vds_text_for_position').value;
+		document.getElementById("vds-add-image-modal-frame").style.display="none";
 	}
 	
 	function selectImageForSpot(strUrl)
@@ -719,10 +720,19 @@
 		textLevel.y = padd;
 		
 		buttonChangeColorSchema.x = gameWidth + padd;
-		buttonChangeColorSchema.y = gameHeight - padd*2 - buttonNextLevel.height - 200;
+		buttonChangeColorSchema.y = padd*2 + 50 + buttonNextLevel.height;
 
 		buttonSave.x = gameWidth + toolbarSz - padd - toolbarSz/4;
-		buttonSave.y = gameHeight - padd*2 - buttonNextLevel.height - 200;
+		buttonSave.y = padd*2 + 50 + buttonNextLevel.height;
+		
+		imageWSW.x = gameWidth;
+        imageWSW.y = gameHeight - 15 - 120- 120 - 73;
+		
+		imageCSW.x = gameWidth;
+        imageCSW.y = gameHeight - 10 - 120 - 73;
+		
+		imageAPCC.x = gameWidth;
+		imageAPCC.y = gameHeight - 5 - 73;
 	}
 
 	function saveData() {
@@ -887,20 +897,18 @@
 		buttonSave = game.add.button(gameWidth + toolbarSz - padd - toolbarSz/4,  padd*2 + 50 + buttonNextLevel.height, 'buttonSave', showSaveLoadModalFrame, this, 1, 0, 0);
 		buttonSave.scale.setTo(toolbarSz/4/buttonSave.width, toolbarSz/4/buttonSave.width);
 		
-		imageCSW = game.add.button(gameWidth, gameHeight - 15 - 120- 120 - 73, 'wsw', null, this, 1, 0, 0);
-		imageCSW = game.add.button(gameWidth, gameHeight - 10 - 120 - 73, 'csw', null, this, 1, 0, 0);
-		imageAPCC = game.add.button(gameWidth, gameHeight- 5 - 73, 'apcc', null, this, 1, 0, 0);
+		imageWSW = game.add.button(gameWidth, gameHeight - 15 - 120- 120 - 73, 'wsw', GoToWSW, this, 1, 0, 0);
+		imageCSW = game.add.button(gameWidth, gameHeight - 10 - 120 - 73, 'csw', GoToCSW, this, 1, 0, 0);
+		imageAPCC = game.add.button(gameWidth, gameHeight- 5 - 73, 'apcc', GoToAPCC, this, 1, 0, 0);
 
 		toolbarGrp.add(buttonNextLevel);
 		toolbarGrp.add(buttonPreviousLevel);
 		toolbarGrp.add(buttonChangeColorSchema);
 		toolbarGrp.add(buttonSave);
-//		toolbarGrp.add(imageCSW);
-//		toolbarGrp.add(imageWSW);
-//		toolbarGrp.add(imageAPCC);
+		toolbarGrp.add(imageWSW);
+		toolbarGrp.add(imageCSW);
+		toolbarGrp.add(imageAPCC);
 
-		
-		
 		buttonTopL = game.add.button(padd, padd, 'buttonNoPicW', browseForImage, this, 1, 0, 0);
 		buttonTopL.name = "TL";
 		rectangleTL = new Phaser.Rectangle(padd, padd, finalImageWidth, finalImageWidth);
@@ -1004,6 +1012,21 @@
 		GetGist("https://api.github.com/gists/f502e4c8377c2cd78f712a88e9a1f2c9", FillOutLoadableData, "");
 		//   vds-load-names-filter
 		
+	}
+	
+	function GoToCSW()
+	{
+		window.location = "http://www.criticalsoftware.com";
+	}	
+	
+	function GoToWSW()
+	{
+		window.location = "https://www.watchfulsoftware.com";
+	}
+
+	function GoToAPCC()
+	{
+		window.location = "http://www.apc-coimbra.org.pt/";
 	}
 	
 	function FillOutLoadableData(str, data)
