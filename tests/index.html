@@ -875,17 +875,17 @@
 		
 		spriteToolbar = drawRECT(toolbar, toolbarColor, toolbarGrp);
 		
-		buttonPreviousLevel = game.add.button(gameWidth + padd, toolbar.y + padd + 50, 'buttonMinusB', previousLevel, this, 1, 0, 0);
-		buttonPreviousLevel.scale.setTo(toolbarSz/4/buttonPreviousLevel.width, toolbarSz/4/buttonPreviousLevel.width);
+		buttonPreviousLevel = game.add.button(gameWidth + padd/2, toolbar.y + padd + 50, 'buttonMinusB', previousLevel, this, 1, 0, 0);
+		buttonPreviousLevel.scale.setTo(toolbarSz/2.5/buttonPreviousLevel.width, toolbarSz/2.5/buttonPreviousLevel.width);
 		
-		buttonNextLevel = game.add.button(gameWidth + toolbarSz - padd - toolbarSz/4, toolbar.y + padd + 50, 'buttonPlusB', nextLevel, this, 1, 0, 0);
-		buttonNextLevel.scale.setTo(toolbarSz/4/buttonNextLevel.width, toolbarSz/4/buttonNextLevel.width);
+		buttonNextLevel = game.add.button(gameWidth + toolbarSz - padd/2 - toolbarSz/2.5, toolbar.y + padd + 50, 'buttonPlusB', nextLevel, this, 1, 0, 0);
+		buttonNextLevel.scale.setTo(toolbarSz/2.5/buttonNextLevel.width, toolbarSz/2.5/buttonNextLevel.width);
 		
-		buttonChangeColorSchema = game.add.button(gameWidth + padd, padd*2 + 50 + buttonNextLevel.height, 'buttonColor', changeSchema, this, 1, 0, 0);
-		buttonChangeColorSchema.scale.setTo(toolbarSz/4/buttonChangeColorSchema.width, toolbarSz/4/buttonChangeColorSchema.width);
+		buttonChangeColorSchema = game.add.button(gameWidth+toolbarSz/4, padd*2 + 60 + buttonNextLevel.height, 'buttonColor', changeSchema, this, 1, 0, 0);
+		buttonChangeColorSchema.scale.setTo(toolbarSz/2/buttonChangeColorSchema.width, toolbarSz/2/buttonChangeColorSchema.width);
 		
-		buttonSave = game.add.button(gameWidth + toolbarSz - padd - toolbarSz/4,  padd*2 + 50 + buttonNextLevel.height, 'buttonSave', showSaveLoadModalFrame, this, 1, 0, 0);
-		buttonSave.scale.setTo(toolbarSz/4/buttonSave.width, toolbarSz/4/buttonSave.width);
+		buttonSave = game.add.button(gameWidth+toolbarSz/4, padd*3 + 120 + buttonNextLevel.height, 'buttonSave', showSaveLoadModalFrame, this, 1, 0, 0);
+		buttonSave.scale.setTo(toolbarSz/2/buttonSave.width, toolbarSz/2/buttonSave.width);
 		
 		imageCSW = game.add.button(gameWidth, gameHeight - 15 - 120- 120 - 73, 'wsw', null, this, 1, 0, 0);
 		imageCSW = game.add.button(gameWidth, gameHeight - 10 - 120 - 73, 'csw', null, this, 1, 0, 0);
@@ -979,7 +979,7 @@
 		var level = (speed < 5) ? speed : speed/5 + 4;
 		
 		var textL = "Level " + level;
-		var style = { font: "Arial", fontSize: 60*toolbarSz/288, fill: "#333333", align: "center" }; //BP: TODO: Add text color to the theme!
+		var style = { font: "Arial", fontWeight: "bold", fontSize: 60*toolbarSz/288, fill: "#00000", align: "center" }; //BP: TODO: Add text color to the theme!
 		textLevel = game.add.text(toolbar.x + padd/2, toolbar.y + padd, textL, style);
 		toolbarGrp.add(textLevel);
 		//applySchema(currentSchema);
