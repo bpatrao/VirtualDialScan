@@ -39,7 +39,7 @@
 			<div style="height: 150px; overflow: auto;">
 				<h2 style="margin:0px; padding:0px; font-weight: bold; align: center; text-align: center;">Add/Set Text or Image</h2>
 				<ul style="margin:0px; padding:0px; padding-left:10px; margin-left: 15px;">
-					<li style="height:25px;"><b>Text:</b> &nbsp; &nbsp; <input type="text" style="width:50%" onkeyup="document.getElementById('vds_button_set_text').disabled = (this.value.length==0)" id="vds_text_for_position"></input> &nbsp; <input type="button" disabled="disabled" id="vds_button_set_text" onclick="selectText();" value="Set Text"></input></li>
+					<li style="height:25px;"><b>Text:</b> &nbsp; &nbsp; <input type="text" style="width:90px;" onkeyup="document.getElementById('vds_button_set_text').disabled = (this.value.length==0)" id="vds_text_for_position"></input> &nbsp; <input type="button" disabled="disabled" id="vds_button_set_text" onclick="selectText();" value="Set Text"></input></li>
 					<li style="height:25px;"><b>Browse:</b><input type="file" id="fileChooser" onchange="handleFiles(this.files); document.getElementById('vds-add-image-modal-frame').style.display='none';"/></li>
 					<!-- <li>(Optional) Description: <input type="text" style="width:100px;" id="image_caption"></input>&nbsp;<input type="button" onclick="document.getElementById('image_caption').value = '';" value="Clear Description"></button></li>-->
 					<li style="height:25px;"><b>Search:</b>&nbsp; <input style="width:100px" type="text" onkeyup="document.getElementById('vds_search_pixabay_btn').disabled = (this.value.length==0)" id="search_str_pixabay"></input>&nbsp;Type: <select id="search_type_pixabay" name="search_type_pixabay" style="width:100px">
@@ -90,7 +90,15 @@
 	</div>
 	
 	<script type="text/javascript">
-
+	var language = new Array();
+	language["PT"] = new Array();
+	language["EN"] = new Array();
+	
+	language["PT"]["get_text"] = 'Adicionar Texto ou Imagem';
+	language["EN"]["get_text"] = 'Add/Set Text or Image';
+	
+	
+	
 	function showSaveLoadModalFrame()
 	{
 		document.getElementById('vds-save-load-modal-frame').style.display='block';
@@ -99,52 +107,20 @@
 	function selectText()
 	{
 		var textValue = document.getElementById('vds_text_for_position').value;
-		
-		try {
-			game.cache.removeImage(positionToPlaceImage+'image');
-		} catch(e) {};
-		
-		var textureToLoad='buttonNoPicW';
-		if(currentSchema == 1)
-		{
-			textureToLoad='buttonNoPicB';
-		}
-		
-		//TODO!!!!!
 		//draw text into graphics and then call generateTexture!
-		//TODO!!!!!
-		
-		if(positionToPlaceImage == "TL") {
-			textTL.setText(textValue);
-			buttonTopL.loadTexture(textTL.texture, 0, true);
-			ResizeButton(buttonTopL, finalImageWidth);
-			buttonTopL.outFrame  = 0;
-			buttonTopL.overFrame = 0;
-			
-		} else if(positionToPlaceImage == "TM") {
-			textTM.setText(textValue);
-			buttonTopM.loadTexture(textTM.texture, 0);
-		} else if(positionToPlaceImage == "TR") {
-			textTR.setText(textValue);
-			buttonTopR.loadTexture(textTR.texture, 0);
-		} else if(positionToPlaceImage == "ML") {
-			textML.setText(textValue);
-			buttonMiddleL.loadTexture(textML.texture, 0);
-		} else if(positionToPlaceImage == "MR") {
-			textMR.setText(textValue);
-			buttonMiddleR.loadTexture(textMR.texture, 0);
-		} else if(positionToPlaceImage == "BL") {
-			textBL.setText(textValue);
-			buttonBottomL.loadTexture(textBL.texture, 0);
-		} else if(positionToPlaceImage == "BM") {
-			textBM.setText(textValue);
-			buttonBottomM.loadTexture(textBM.texture, 0);
-		} else if(positionToPlaceImage == "BR") {
-			textBL.setText(textValue);
-			buttonBottomR.loadTexture(textBL.texture, 0);
-		}
-		
-		window.setTimeout(resize, 100);
+		bmd = game.make.bitmapData(finalImageWidth,finalImageWidth);
+		bmd.ctx.beginPath();    
+		bmd.ctx.rect(0,0,finalImageWidth,finalImageWidth);
+		bmd.ctx.fillStyle = '#555555';
+		bmd.ctx.fill();
+		bmd.ctx.fillStyle = '#FFFFFF';
+		bmd.ctx.font = ((finalImageWidth+20)/textValue.length) + 'px arial';
+		var textMeasurement = bmd.ctx.measureText(textValue);
+		bmd.ctx.textAlign = "center";
+		bmd.ctx.fillText(textValue, finalImageWidth/2, finalImageWidth/2 + ((finalImageWidth-20)/textValue.length)/2, finalImageWidth);
+		var dataURL = bmd.ctx.canvas.toDataURL();
+
+		selectImageForSpot(dataURL);
 		
 		document.getElementById("vds-add-image-modal-frame").style.display="none";
 	}
@@ -169,35 +145,35 @@
 		if(positionToPlaceImage == "TL") {
 			buttonTopL.loadTexture(positionToPlaceImage+'image', 0);
 			ResizeButton(buttonTopL, finalImageWidth);
-			textTL.setText("");
+			//textTL.setText("");
 		} else if(positionToPlaceImage == "TM") {
 			buttonTopM.loadTexture(positionToPlaceImage+'image', 0);
 			ResizeButton(buttonTopM, finalImageWidth);
-			textTM.setText("");
+			//textTM.setText("");
 		} else if(positionToPlaceImage == "TR") {
 			buttonTopR.loadTexture(positionToPlaceImage+'image', 0);
 			ResizeButton(buttonTopR, finalImageWidth);
-			textTR.setText("");
+			//textTR.setText("");
 		} else if(positionToPlaceImage == "ML") {
 			buttonMiddleL.loadTexture(positionToPlaceImage+'image', 0);
 			ResizeButton(buttonMiddleL, finalImageWidth);
-			textML.setText("");
+			//textML.setText("");
 		} else if(positionToPlaceImage == "MR") {
 			buttonMiddleR.loadTexture(positionToPlaceImage+'image', 0);
 			ResizeButton(buttonMiddleR, finalImageWidth);
-			textMR.setText("");
+			//textMR.setText("");
 		} else if(positionToPlaceImage == "BL") {
 			buttonBottomL.loadTexture(positionToPlaceImage+'image', 0);
 			ResizeButton(buttonBottomL, finalImageWidth);
-			textBL.setText("");
+			//textBL.setText("");
 		} else if(positionToPlaceImage == "BM") {
 			buttonBottomM.loadTexture(positionToPlaceImage+'image', 0);
 			ResizeButton(buttonBottomM, finalImageWidth);
-			textBM.setText("");
+			//textBM.setText("");
 		} else if(positionToPlaceImage == "BR") {
 			buttonBottomR.loadTexture(positionToPlaceImage+'image', 0);
 			ResizeButton(buttonBottomR, finalImageWidth);						
-			textBR.setText("");
+			//textBR.setText("");
 		}
 		
 		document.getElementById("vds-add-image-modal-frame").style.display="none";
@@ -257,7 +233,7 @@
 	//Hover Sprites for the selectable areas
 	var spriteTL, spriteTM, spriteTR, spriteML, spriteMR, spriteBL, spriteBM, spriteBR;
 	//Text to Write on top of the selectable areas
-	var textTL, textTM, textTR, textML, textMR, textBL, textBM, textBR;
+	//var textTL, textTM, textTR, textML, textMR, textBL, textBM, textBR;
 	//Color to hover the selectable areas with
 	var tintColor = 'rgba(255,255,255, 0.3)';
 	//Default Style for the Text:
@@ -719,8 +695,8 @@
 		spriteTM.height = finalImageWidth;
 		//textTM.x = Math.floor(spriteTM.x + spriteTM.width / 2);
 		//textTM.y = Math.floor(spriteTM.y + spriteTM.height / 2);
-		textTM.width = finalImageWidth;
-		textTM.height = finalImageWidth;
+		//textTM.width = finalImageWidth;
+		//textTM.height = finalImageWidth;
 
 		buttonTopR.x = gameWidth - finalImageWidth - padd;
 		buttonTopR.y = padd;
@@ -731,8 +707,8 @@
 		spriteTR.height = finalImageWidth;
 		//textTR.x = Math.floor(spriteTR.x + spriteTR.width / 2);
 		//textTR.y = Math.floor(spriteTR.y + spriteTR.height / 2);
-		textTR.width = finalImageWidth;
-		textTR.height = finalImageWidth;
+		//textTR.width = finalImageWidth;
+		//textTR.height = finalImageWidth;
 
 		buttonMiddleL.x = padd;
 		buttonMiddleL.y = gameHeight/2 - finalImageWidth/2;
@@ -743,8 +719,8 @@
 		spriteML.height = finalImageWidth;
 		//textML.x = Math.floor(spriteML.x + spriteML.width / 2);
 		//textML.y = Math.floor(spriteML.y + spriteML.height / 2);
-		textML.width = finalImageWidth;
-		textML.height = finalImageWidth;
+		//textML.width = finalImageWidth;
+		//textML.height = finalImageWidth;
 
 		buttonMiddleR.x = gameWidth - finalImageWidth - padd;
 		buttonMiddleR.y = gameHeight/2 - finalImageWidth/2;
@@ -755,8 +731,8 @@
 		spriteMR.height = finalImageWidth;
 		//textMR.x = Math.floor(spriteMR.x + spriteMR.width / 2);
 		//textMR.y = Math.floor(spriteMR.y + spriteMR.height / 2);
-		textMR.width = finalImageWidth;
-		textMR.height = finalImageWidth;
+		//textMR.width = finalImageWidth;
+		//textMR.height = finalImageWidth;
 
 		buttonBottomL.x = padd;
 		buttonBottomL.y = gameHeight - finalImageWidth - padd;
@@ -767,8 +743,8 @@
 		spriteBL.height = finalImageWidth;
 		//textBL.x = Math.floor(spriteBL.x + spriteBL.width / 2);
 		//textBL.y = Math.floor(spriteBL.y + spriteBL.height / 2);
-		textBL.width = finalImageWidth;
-		textBL.height = finalImageWidth;
+		//textBL.width = finalImageWidth;
+		//textBL.height = finalImageWidth;
 
 		buttonBottomM.x = gameWidth/2 - finalImageWidth/2;
 		buttonBottomM.y = gameHeight - finalImageWidth - padd;
@@ -779,8 +755,8 @@
 		spriteBM.height = finalImageWidth;
 		//textBM.x = Math.floor(spriteBM.x + spriteBM.width / 2);
 		//textBM.y = Math.floor(spriteBM.y + spriteBM.height / 2);
-		textBM.width = finalImageWidth;
-		textBM.height = finalImageWidth;
+		//textBM.width = finalImageWidth;
+		//textBM.height = finalImageWidth;
 
 		buttonBottomR.x = gameWidth - finalImageWidth - padd;
 		buttonBottomR.y = gameHeight - finalImageWidth - padd;
@@ -791,8 +767,8 @@
 		spriteBR.height = finalImageWidth;
 		//textBR.x = Math.floor(spriteBR.x + spriteBR.width / 2);
 		//textBR.y = Math.floor(spriteBR.y + spriteBR.height / 2);
-		textBR.width = finalImageWidth;
-		textBR.height = finalImageWidth;
+		//textBR.width = finalImageWidth;
+		//textBR.height = finalImageWidth;
 
 		arrowSprite.body.x = gameWidth/2;
 		arrowSprite.x = gameWidth/2;
@@ -1002,20 +978,20 @@
 				
 		buttonTopL = game.add.button(padd, padd, 'buttonNoPicW', browseForImage, this, 1, 0, 0);
 		buttonTopL.name = "TL";
-		textTL = game.add.text(0, 0, "", styleTXT);
-		textTL.anchor.set(0.5);
-		textTL.width=finalImageWidth;
-		textTL.height=finalImageWidth;
-		textTL.x = -5000;
-		textTL.y = -5000;
+		//textTL = game.add.text(0, 0, "", styleTXT);
+		//textTL.anchor.set(0.5);
+		//textTL.width=finalImageWidth;
+		//textTL.height=finalImageWidth;
+		//textTL.x = -5000;
+		//textTL.y = -5000;
 		
 		rectangleTL = new Phaser.Rectangle(padd, padd, finalImageWidth, finalImageWidth);
 		spriteTL = drawRECT(rectangleTL, tintColor, topGrp);
 				
 		buttonTopM = game.add.button(gameWidth/2 - finalImageWidth/2, padd, 'buttonNoPicW', browseForImage, this, 1, 0, 0);
 		buttonTopM.name = "TM";
-		textTM = game.add.text(0, 0, "", styleTXT);
-		textTM.anchor.set(0.5);
+		//textTM = game.add.text(0, 0, "", styleTXT);
+		//textTM.anchor.set(0.5);
 		rectangleTM = new Phaser.Rectangle(gameWidth/2 - finalImageWidth/2, padd, finalImageWidth, finalImageWidth);
 		spriteTM = drawRECT(rectangleTM, tintColor, topGrp);
 				
@@ -1023,43 +999,43 @@
 		buttonTopR.name = "TR";
 		rectangleTR = new Phaser.Rectangle(gameWidth - finalImageWidth - padd, padd, finalImageWidth, finalImageWidth);
 		spriteTR = drawRECT(rectangleTR, tintColor, topGrp);
-		textTR = game.add.text(0, 0, "", styleTXT);
-		textTR.anchor.set(0.5);
+		//textTR = game.add.text(0, 0, "", styleTXT);
+		//textTR.anchor.set(0.5);
 		
 		buttonMiddleL = game.add.button(padd, gameHeight/2 - finalImageWidth/2, 'buttonNoPicW', browseForImage, this, 1, 0, 0);
 		buttonMiddleL.name = "ML";
 		rectangleML = new Phaser.Rectangle(padd, gameHeight/2 - finalImageWidth/2, finalImageWidth, finalImageWidth);
 		spriteML = drawRECT(rectangleML, tintColor, topGrp);
-		textML = game.add.text(0, 0, "", styleTXT);
-		textML.anchor.set(0.5);
+		//textML = game.add.text(0, 0, "", styleTXT);
+		//textML.anchor.set(0.5);
 		
 		buttonMiddleR = game.add.button(gameWidth - finalImageWidth - padd, gameHeight/2 - finalImageWidth/2, 'buttonNoPicW', browseForImage, this, 1, 0, 0);
 		buttonMiddleR.name = "MR";
 		rectangleMR = new Phaser.Rectangle(gameWidth - finalImageWidth - padd, gameHeight/2 - finalImageWidth/2, finalImageWidth, finalImageWidth);
 		spriteMR = drawRECT(rectangleMR, tintColor, topGrp);
-		textMR = game.add.text(0, 0, "", styleTXT);
-		textMR.anchor.set(0.5);
+		//textMR = game.add.text(0, 0, "", styleTXT);
+		//textMR.anchor.set(0.5);
 		
 		buttonBottomL = game.add.button(padd, gameHeight - finalImageWidth - padd, 'buttonNoPicW', browseForImage, this, 1, 0, 0);
 		buttonBottomL.name = "BL";
 		rectangleBL= new Phaser.Rectangle(padd, gameHeight - finalImageWidth - padd, finalImageWidth, finalImageWidth);
 		spriteBL = drawRECT(rectangleBL, tintColor, topGrp);
-		textBL = game.add.text(0, 0, "", styleTXT);
-		textBL.anchor.set(0.5);
+		//textBL = game.add.text(0, 0, "", styleTXT);
+		//textBL.anchor.set(0.5);
 		
 		buttonBottomM = game.add.button(gameWidth/2 - finalImageWidth/2, gameHeight - finalImageWidth - padd, 'buttonNoPicW', browseForImage, this, 1, 0, 0);
 		buttonBottomM.name = "BM";
 		rectangleBM= new Phaser.Rectangle(gameWidth/2 - finalImageWidth/2, gameHeight - finalImageWidth - padd, finalImageWidth, finalImageWidth);
 		spriteBM = drawRECT(rectangleBM, tintColor, topGrp);
-		textBM = game.add.text(0, 0, "", styleTXT);
-		textBM.anchor.set(0.5);
+		//textBM = game.add.text(0, 0, "", styleTXT);
+		//textBM.anchor.set(0.5);
 		
 		buttonBottomR = game.add.button(gameWidth - finalImageWidth - padd, gameHeight - finalImageWidth - padd, 'buttonNoPicW', browseForImage, this, 1, 0, 0);
 		buttonBottomR.name = "BR";
 		rectangleBR= new Phaser.Rectangle(gameWidth - finalImageWidth - padd, gameHeight - finalImageWidth - padd, finalImageWidth, finalImageWidth);
 		spriteBR = drawRECT(rectangleBR, tintColor, topGrp);
-		textBR = game.add.text(0, 0, "", styleTXT);
-		textBR.anchor.set(0.5);
+		//textBR = game.add.text(0, 0, "", styleTXT);
+		//textBR.anchor.set(0.5);
 		
 		buttonGrp.add(buttonTopL);
 		buttonGrp.add(buttonTopM);
