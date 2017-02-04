@@ -1324,9 +1324,11 @@
 						fullScreenBtnY = button.y;
 						
 						
-						game.add.tween(button).to( { x: 0, y: 0, angle: 360 }, 2000, Phaser.Easing.Linear.In, true);
-						game.add.tween(button.scale).to( { x: newProportionW, y: newProportionH }, 2000, Phaser.Easing.Linear.In, true);
-					
+						this.myTweenRotation=game.add.tween(button).to( { x: 0, y: 0, angle: 360 }, 2000, Phaser.Easing.Linear.In, true, 0, 0, true);
+						this.myTweenResize=game.add.tween(button.scale).to( { x: newProportionW, y: newProportionH }, 2000, Phaser.Easing.Linear.In, true, 0, 0, true);
+						this.myTweenRotation.yoyoDelay(5000);
+						this.myTweenResize.yoyoDelay(5000);
+						
 						//change button to be topmost!
 						buttonGrp.remove(button);
 						topMostGrp.add(button);
