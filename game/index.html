@@ -522,7 +522,9 @@
 		game.load.image('wsw', 'WatchfulSoftware.png'); //120x45
 		game.load.image('csw', 'CriticalSoftware.jpg'); //120x120
 		
-		game.load.audio('sound', 'sound.mp3');
+		//load sounds
+		game.load.audio('sound', 'sound.mp3'); //sound for when an image is selected
+		game.load.audio('click', 'click.mp3'); //sound for when a click is done
 	}
 	
 	function applySchema(schemaID)
@@ -978,7 +980,8 @@
 		toolbarGrp.add(imageCSW);
 		toolbarGrp.add(imageAPCC);
 		
-		sound = game.add.audio('sound');
+		sound = game.add.audio('sound');		
+		click = game.add.audio('click');
 
 		styleTXT = { font: "32px Arial", fill: "#ff0044", wordWrap: true, wordWrapWidth: finalImageWidth, align: "center" };
 				
@@ -1286,6 +1289,7 @@
 			if (toolbarButtonClicked == 1)
 			{
 				toolbarButtonClicked = 0;
+				click.play();
 			}
 			else
 			{
@@ -1325,6 +1329,10 @@
 						buttonGrp.remove(button);
 						topMostGrp.add(button);
 						fullScreen = 1;
+					}
+					else
+					{
+						click.play();
 					}
 				}
 			}
