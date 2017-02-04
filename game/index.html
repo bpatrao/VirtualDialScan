@@ -1318,13 +1318,15 @@
 						var newProportionW = gameWidth/originalWidth;
 						var newProportionH = gameHeight/originalHeight;
 						
+						
 						fullScreenBtn = button;
 						fullScreenBtnX = button.x;
 						fullScreenBtnY = button.y;
 						
-						game.add.tween(button.scale).to( { x: newProportionW, y: newProportionH }, 2000, Phaser.Easing.Linear.None, true);
-						game.add.tween(button).to( { x: 0, y: 0 }, 2000, Phaser.Easing.Linear.None, true);
 						
+						game.add.tween(button).to( { x: 0, y: 0, angle: 360 }, 2000, Phaser.Easing.Linear.In, true);
+						game.add.tween(button.scale).to( { x: newProportionW, y: newProportionH }, 2000, Phaser.Easing.Linear.In, true);
+					
 						//change button to be topmost!
 						buttonGrp.remove(button);
 						topMostGrp.add(button);
@@ -1385,6 +1387,7 @@
 		{
 			arrowSprite.body.rotateRight(speed);
 		}
+
 	}
 
 	function render() {
