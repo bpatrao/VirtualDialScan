@@ -521,6 +521,8 @@
 		game.load.image('apcc', 'APCC.jpg'); //120x80
 		game.load.image('wsw', 'WatchfulSoftware.png'); //120x45
 		game.load.image('csw', 'CriticalSoftware.jpg'); //120x120
+		
+		game.load.audio('sound', 'sound.mp3');
 	}
 	
 	function applySchema(schemaID)
@@ -975,6 +977,8 @@
 		toolbarGrp.add(imageWSW);
 		toolbarGrp.add(imageCSW);
 		toolbarGrp.add(imageAPCC);
+		
+		sound = game.add.audio('sound');
 
 		styleTXT = { font: "32px Arial", fill: "#ff0044", wordWrap: true, wordWrapWidth: finalImageWidth, align: "center" };
 				
@@ -1298,6 +1302,8 @@
 					
 					if ((button.key != "buttonNoPicW") && (button.key != "buttonNoPicB"))
 					{
+						sound.play();
+						
 						//get current button scale:
 						var scale = button.scale.x;
 						//calculate the button original Width/height
