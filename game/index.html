@@ -1272,6 +1272,7 @@
 		if(fullScreen)
 		{
 			ResizeButton(fullScreenBtn, finalImageWidth);
+			fullScreenBtn.anchor.setTo(0,0);
 			fullScreenBtn.x = fullScreenBtnX;
 			fullScreenBtn.y = fullScreenBtnY;
 			move = 1;
@@ -1323,9 +1324,9 @@
 						fullScreenBtnX = button.x;
 						fullScreenBtnY = button.y;
 						
-						
-						game.add.tween(button).to( { x: 0, y: 0, angle: 360 }, 2000, Phaser.Easing.Linear.In, true);
-						game.add.tween(button.scale).to( { x: newProportionW, y: newProportionH }, 2000, Phaser.Easing.Linear.In, true);
+						button.anchor.setTo(0.5, 0.5);
+						game.add.tween(button).to( {x: gameWidth/2, y:gameHeight/2, angle: 360 }, 2000, Phaser.Easing.Linear.In, true);
+						game.add.tween(button.scale).to( { x: newProportionW, y: newProportionH }, 2000, Phaser.Easing.Linear.None, true);
 					
 						//change button to be topmost!
 						buttonGrp.remove(button);
