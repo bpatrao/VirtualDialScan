@@ -521,6 +521,10 @@
 		game.load.image('apcc', 'APCC.jpg'); //120x80
 		game.load.image('wsw', 'WatchfulSoftware.png'); //120x45
 		game.load.image('csw', 'CriticalSoftware.jpg'); //120x120
+		
+		//load sounds
+		game.load.audio('sound', 'sound.mp3'); //sound for when an image is selected
+		game.load.audio('click', 'click.mp3'); //sound for when a click is done
 	}
 	
 	function applySchema(schemaID)
@@ -975,6 +979,9 @@
 		toolbarGrp.add(imageWSW);
 		toolbarGrp.add(imageCSW);
 		toolbarGrp.add(imageAPCC);
+		
+		sound = game.add.audio('sound');		
+		click = game.add.audio('click');
 
 		styleTXT = { font: "32px Arial", fill: "#ff0044", wordWrap: true, wordWrapWidth: finalImageWidth, align: "center" };
 				
@@ -1260,13 +1267,34 @@
 		//arrowSprite.loadTexture('profilepic', 0);
 	}
 
+	function backToPosition()
+	{
+		if(fullScreen)
+		{
+			onClick();
+		}
+		//Otherwise, ignore this, because the user has already clicked manually!
+	}
+	
 	function onClick()
 	{
 		if(fullScreen)
 		{
-			ResizeButton(fullScreenBtn, finalImageWidth);
-			fullScreenBtn.x = fullScreenBtnX;
-			fullScreenBtn.y = fullScreenBtnY;
+			//add this as a tween!
+			var scaleX = button.scale.x;
+			var scaleY = button.scale.y;
+			var originalWidth = fullScreenBtn.width/scaleX;
+			var originalHeight = fullScreenBtn.height/scaleY;
+			var newProportionW = finalImageWidth/originalWidth;
+			var newProportionH = finalImageWidth/originalHeight;
+			
+			game.add.tween(button).to( {x: fullScreenBtnX, y:fullScreenBtnY, angle: -360 }, 800, Phaser.Easing.Linear.In, true);
+			game.add.tween(button.scale).to( { x: newProportionW, y: newProportionH }, 800, Phaser.Easing.Linear.In, true);
+			game.add.tween(button.anchor).to({x: 0.0, y:0.0}, 800, Phaser.Easing.Linear.In, true);
+					
+			//ResizeButton(fullScreenBtn, finalImageWidth);
+			//fullScreenBtn.x = fullScreenBtnX;
+			//fullScreenBtn.y = fullScreenBtnY;
 			move = 1;
 			topMostGrp.remove(fullScreenBtn);
 			buttonGrp.add(fullScreenBtn);
@@ -1282,6 +1310,7 @@
 			if (toolbarButtonClicked == 1)
 			{
 				toolbarButtonClicked = 0;
+				click.play();
 			}
 			else
 			{
@@ -1298,6 +1327,8 @@
 					
 					if ((button.key != "buttonNoPicW") && (button.key != "buttonNoPicB"))
 					{
+						sound.play();
+						
 						//get current button scale:
 						var scale = button.scale.x;
 						//calculate the button original Width/height
@@ -1306,19 +1337,28 @@
 						
 						//Now calculate what should be the next width/height
 						var newProportionW = gameWidth/originalWidth;
-						var newProportionH = gameHeight/originalHeight;
+						var newProportionH = gameHeight/originalHeight;			
 						
 						fullScreenBtn = button;
 						fullScreenBtnX = button.x;
 						fullScreenBtnY = button.y;
 						
-						game.add.tween(button.scale).to( { x: newProportionW, y: newProportionH }, 2000, Phaser.Easing.Linear.None, true);
-						game.add.tween(button).to( { x: 0, y: 0 }, 2000, Phaser.Easing.Linear.None, true);
+						game.add.tween(button.anchor).to({x: 0.5, y:0.5}, 500, Phaser.Easing.Linear.In, true);
+						game.add.tween(button).to( {x: gameWidth/2, y:gameHeight/2, angle: 360 }, 2000, Phaser.Easing.Linear.In, true);
+						game.add.tween(button.scale).to( { x: newProportionW, y: newProportionH }, 2000, Phaser.Easing.Linear.In, true);
+			
+						setTimeout(backToPosition, 5000);
+						//myTweenRotation.yoyo(true, 5000);
+						//myTweenResize.yoyo(true, 5000);
 						
 						//change button to be topmost!
 						buttonGrp.remove(button);
 						topMostGrp.add(button);
 						fullScreen = 1;
+					}
+					else
+					{
+						click.play();
 					}
 				}
 			}
@@ -1371,6 +1411,7 @@
 		{
 			arrowSprite.body.rotateRight(speed);
 		}
+
 	}
 
 	function render() {
